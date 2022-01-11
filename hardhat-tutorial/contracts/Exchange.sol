@@ -62,6 +62,7 @@ contract Exchange is ERC20 {
     function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
         uint ethBought = getAmountOfTokens(_tokensSold, false);
         require(ethBought >= _minEth, "Eth that can be bought is less than the min Eth specified");
+        IERC20(cryptoDevTokenAddress).transferFrom(msg.sender, address(this), _tokensSold);
         payable(msg.sender).transfer(ethBought);
     }
 
