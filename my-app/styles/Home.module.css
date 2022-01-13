@@ -43,6 +43,36 @@
 
 .button {
   border-radius: 4px;
+  background-color: purple;
+  border: none;
+  color: #ffffff;
+  font-size: 15px;
+  padding: 5px;
+  width: 100px;
+  cursor: pointer;
+  margin: 2%;
+}
+
+.inputDiv {
+  width: 200px;
+  height: 100%;
+  padding: 1%;
+  margin: 2%;
+  border: lightslategray;
+  box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+}
+.select {
+  border-radius: 4px;
+  font-size: 15px;
+  padding: 5px;
+  width: 175px;
+  cursor: pointer;
+  margin: 2%;
+}
+
+.button1 {
+  border-radius: 4px;
   background-color: blue;
   border: none;
   color: #ffffff;

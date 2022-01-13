@@ -14,14 +14,14 @@ contract Exchange is ERC20 {
 
     function addLiquidity(uint _amount) public payable returns (uint) {
         uint liquidity;
-        uint ethSent = address(this).balance;
+        uint ethBalance = address(this).balance;
         if(getReserve() == 0) {
             IERC20 CryptoDevtoken = IERC20(cryptoDevTokenAddress);
             CryptoDevtoken.transferFrom(msg.sender, address(this), _amount);
-            liquidity = ethSent;
+            liquidity = ethBalance;
             _mint(msg.sender, liquidity);
         } else {
-            uint ethReserve =  ethSent - msg.value;
+            uint ethReserve =  ethBalance - msg.value;
             uint cryptoDevTokenReserve = getReserve();
             uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
             IERC20 cryptoDevToken = IERC20(cryptoDevTokenAddress);
@@ -37,32 +37,48 @@ contract Exchange is ERC20 {
         return IERC20(cryptoDevTokenAddress).balanceOf(address(this));
     }
 
-    function getAmountOfTokens(uint inputAmount, bool isEther) private view returns(uint) {
-        uint _cryptoDevTokenReserve = getReserve();
-        uint etherReserve = address(this).balance;
+     function getAmountOfTokens(
+        uint256 inputAmount,
+        uint256 inputReserve,
+        uint256 outputReserve
+    ) public pure returns (uint256) {
+        require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
 
-        require(inputAmount > 0, "Input amount is really low");
-        require((_cryptoDevTokenReserve > 0) && (etherReserve > 0), "Exchange doesnt have enough reserve");
+        uint256 inputAmountWithFee = inputAmount * 99;
+        uint256 numerator = inputAmountWithFee * outputReserve;
+        uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
 
-        uint inputAmountWithFee = inputAmount * 99;
-
-        if(isEther) {
-            return (inputAmountWithFee * _cryptoDevTokenReserve)/((etherReserve*100) + inputAmountWithFee);
-        } else {
-            return (inputAmountWithFee * etherReserve)/((_cryptoDevTokenReserve*100) + inputAmountWithFee);
-        }
+        return numerator / denominator;
     }
 
     function ethToCryptoDevToken(uint _minTokens) public payable {
-        uint tokensBought = getAmountOfTokens(msg.value, true);
-        require(tokensBought >= _minTokens, "Tokens that can be bought are less than the min tokens specified");
+         uint256 tokenReserve = getReserve();
+        uint256 tokensBought = getAmountOfTokens(
+            msg.value,
+            address(this).balance - msg.value,
+            tokenReserve
+        );
+
+        require(tokensBought >= _minTokens, "insufficient output amount");
+
         IERC20(cryptoDevTokenAddress).transfer(msg.sender, tokensBought);
     }
 
     function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
-        uint ethBought = getAmountOfTokens(_tokensSold, false);
-        require(ethBought >= _minEth, "Eth that can be bought is less than the min Eth specified");
-        IERC20(cryptoDevTokenAddress).transferFrom(msg.sender, address(this), _tokensSold);
+       uint256 tokenReserve = getReserve();
+        uint256 ethBought = getAmountOfTokens(
+            _tokensSold,
+            tokenReserve,
+            address(this).balance
+        );
+
+        require(ethBought >= _minEth, "insufficient output amount");
+
+        IERC20(cryptoDevTokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            _tokensSold
+        );
         payable(msg.sender).transfer(ethBought);
     }
 

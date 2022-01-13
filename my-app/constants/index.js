@@ -653,6 +653,35 @@ export const EXCHANGE_CONTRACT_ABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "inputAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "inputReserve",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "outputReserve",
+        type: "uint256",
+      },
+    ],
+    name: "getAmountOfTokens",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getReserve",
     outputs: [
@@ -808,4 +837,4 @@ export const EXCHANGE_CONTRACT_ABI = [
 ];
 
 export const EXCHANGE_CONTRACT_ADDRESS =
-  "0x4feA3Ac284Cc68d0b6b1D3A54d2A3AD1d892b699";
+  "0x7cb4d984CB8969e5745311B27bC1A0C2669dd387";
