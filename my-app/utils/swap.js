@@ -1,5 +1,4 @@
-import { Contract, utils } from "ethers";
-import { formatEther } from "ethers/lib/utils";
+import { Contract } from "ethers";
 import {
   EXCHANGE_CONTRACT_ABI,
   EXCHANGE_CONTRACT_ADDRESS,
@@ -8,10 +7,10 @@ import {
 } from "../constants";
 
 /*
-    getAmountOfTokensRecievedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
+    getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
     when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
 */
-export const getAmountOfTokensRecievedFromSwap = async (
+export const getAmountOfTokensReceivedFromSwap = async (
   _swapAmountWei,
   provider,
   ethSelected,

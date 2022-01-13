@@ -1,21 +1,21 @@
-import { Contract, providers, utils, BigNumber } from "ethers";
+import { BigNumber, providers, utils } from "ethers";
 import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
 import Web3Modal from "web3modal";
 import styles from "../styles/Home.module.css";
 import { addLiquidity, calculateCD } from "../utils/addLiquidity";
 import {
-  getEtherBalance,
   getCDTokensBalance,
+  getEtherBalance,
   getLPTokensBalance,
   getReserveOfCDTokens,
 } from "../utils/getAmounts";
 import {
-  removeLiquidity,
   getTokensAfterRemove,
+  removeLiquidity,
 } from "../utils/removeLiquidity";
+import { swapTokens } from "../utils/swap";
 
-import { getAmountOfTokensRecievedFromSwap, swapTokens } from "../utils/swap";
 export default function Home() {
   /** General state variables */
   const [loading, setLoading] = useState(false);
@@ -96,16 +96,16 @@ export default function Home() {
   };
 
   /*
-    _getAmountOfTokensRecievedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
+    _getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
     when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
  */
-  const _getAmountOfTokensRecievedFromSwap = async (_swapAmount) => {
+  const _getAmountOfTokensReceivedFromSwap = async (_swapAmount) => {
     try {
       const _swapAmountWEI = utils.parseEther(_swapAmount.toString());
       if (!_swapAmountWEI.eq(zero)) {
         const provider = await getProviderOrSigner();
         const _ethBalance = await getEtherBalance(provider, null, true);
-        const amountOfTokens = await getAmountOfTokensRecievedFromSwap(
+        const amountOfTokens = await getAmountOfTokensReceivedFromSwap(
           _swapAmountWEI,
           provider,
           ethSelected,
@@ -376,7 +376,7 @@ export default function Home() {
             placeholder="Amount"
             onChange={async (e) => {
               setSwapAmount(e.target.value || "");
-              await _getAmountOfTokensRecievedFromSwap(e.target.value || "0");
+              await _getAmountOfTokensReceivedFromSwap(e.target.value || "0");
             }}
             className={styles.input}
             value={swapAmount}
@@ -388,7 +388,7 @@ export default function Home() {
             onChange={async () => {
               setEthSelected(!ethSelected);
               // Initialize the values back to zero
-              await _getAmountOfTokensRecievedFromSwap(0);
+              await _getAmountOfTokensReceivedFromSwap(0);
               setSwapAmount("");
             }}
           >
