@@ -2,6 +2,10 @@
 
 Now its time for you to launch a DeFi Exchange for your `Crypto Dev` tokens
 
+![](https://i.imgur.com/HwoRAeC.png)
+
+![](https://i.imgur.com/IskawSY.png)
+
 ---
 
 ## Requirements
@@ -18,7 +22,7 @@ Lets start building 🚀
 ## Prerequisites
 
 - You have completed the [ICO tutorial](https://github.com/LearnWeb3DAO/ICO)
-- You have completed the [Defo Exchange Theory Tutorial](https://github.com/LearnWeb3DAO/Defi-Exchange-Theory)
+- You have completed the [Defi Exchange Theory Tutorial](https://github.com/LearnWeb3DAO/Defi-Exchange-Theory)
 - You have completed the [Common Topics Tutorial](https://github.com/LearnWeb3DAO/Common-Topics)
 
 ---
@@ -85,23 +89,23 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - After all the checks, it assigns the value to the input param to the `cryptoDevTokenAddress` variable
     - Constructor also sets the `name` and `symbol` for our `Crypto Dev LP` token
 
-    ```go
-    // SPDX-License-Identifier: MIT
+      ```go
+      // SPDX-License-Identifier: MIT
 
-    pragma solidity ^0.8.4;
-    import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+      pragma solidity ^0.8.4;
+      import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-    contract Exchange is ERC20 {
+      contract Exchange is ERC20 {
 
-        address public cryptoDevTokenAddress;
+          address public cryptoDevTokenAddress;
 
-        // Exchange is inheriting ERC20, becase our exchange would keep track of Crypto Dev LP tokens
-        constructor(address _CryptoDevtoken) ERC20("CryptoDev LP Token", "CDLP") {
-            require(_CryptoDevtoken != address(0), "Token address passed is a null address");
-            cryptoDevTokenAddress = _CryptoDevtoken;
-        }
-    }
-    ```
+          // Exchange is inheriting ERC20, becase our exchange would keep track of Crypto Dev LP tokens
+          constructor(address _CryptoDevtoken) ERC20("CryptoDev LP Token", "CDLP") {
+              require(_CryptoDevtoken != address(0), "Token address passed is a null address");
+              cryptoDevTokenAddress = _CryptoDevtoken;
+          }
+      }
+      ```
 
   - Time to create a function to get reserves of the `Eth` and `Crypto Dev` tokens held
     by the contract.
@@ -111,14 +115,14 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - so we can just call the `balanceOf` to check the balance of `CryptoDev Tokens`
       that the contract `address` holds
 
-    ```go
-    /**
-    *  @dev Returns the amount of `Crypto Dev Tokens` held by the contract
-    */
-    function getReserve() public view returns (uint) {
-        return ERC20(cryptoDevTokenAddress).balanceOf(address(this));
-    }
-    ```
+      ```go
+      /**
+      *  @dev Returns the amount of `Crypto Dev Tokens` held by the contract
+      */
+      function getReserve() public view returns (uint) {
+          return ERC20(cryptoDevTokenAddress).balanceOf(address(this));
+      }
+      ```
 
   - Time to create an `addLiquidity` function which would add `liquidity` in the form of `Ether` and `Crypto Dev tokens` to our contract
 
@@ -135,59 +139,59 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted are based on a ratio.
     - The ratio is `(lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)`
 
-      ```go
-      /**
-      * @dev Adds liquidity to the exchange.
-      */
-      function addLiquidity(uint _amount) public payable returns (uint) {
-          uint liquidity;
-          uint ethBalance = address(this).balance;
-          uint cryptoDevTokenReserve = getReserve();
-          ERC20 cryptoDevToken = ERC20(cryptoDevTokenAddress);
-          /*
-              If the reserve is empty, intake any user supplied value for
-              `Ether` and `Crypto Dev` tokens because there is no ratio currently
-          */
-          if(cryptoDevTokenReserve == 0) {
-              // Transfer the `cryptoDevToken` address from the user's account to the contract
-              cryptoDevToken.transferFrom(msg.sender, address(this), _amount);
-              // Take the current ethBalance and mint `ethBalance` amount of LP tokens to the user.
-              // `liquidity` provided is equal to `ethBalance` because this is the first time user
-              // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
-              // by the user in the current `addLiquidity` call
-              // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be propotional
-              // to the eth specified by the user
-              liquidity = ethBalance;
-              _mint(msg.sender, liquidity);
-          } else {
-              /*
-                  If the reserve is not empty, intake any user supplied value for
-                  `Ether` and determine according to the ratio how many `Crypto Dev` tokens
-                  need to be supplied to prevent any large price impacts because of the additional
-                  liquidity
-              */
-              // EthReserve should be the current ethBalance subtracted by the value of ether sent by the user
-              // in the current `addLiquidity` call
-              uint ethReserve =  ethBalance - msg.value;
-              // Ratio should always be maintained so that there are no major price impacts when adding liquidity
-              // Ration here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
-              // So doing some maths, (cryptoDevTokenAmount user can add) = (Eth Sent by the user * cryptoDevTokenReserve /Eth Reserve);
-              uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
-              require(_amount >= cryptoDevTokenAmount, "Amount of tokens sent is less than the minimum tokens required");
-              // transfer only (cryptoDevTokenAmount user can add) amount of `Crypto Dev tokens` from users account
-              // to the contract
-              cryptoDevToken.transferFrom(msg.sender, address(this), cryptoDevTokenAmount);
-              // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
-              // ether added by the user
-              // Ratio here to be maintained is ->
-              // (lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
-              // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
-              liquidity = (totalSupply() * msg.value)/ ethReserve;
-              _mint(msg.sender, liquidity);
-          }
-          return liquidity;
-      }
-      ```
+    ```go
+        /**
+    * @dev Adds liquidity to the exchange.
+    */
+    function addLiquidity(uint _amount) public payable returns (uint) {
+        uint liquidity;
+        uint ethBalance = address(this).balance;
+        uint cryptoDevTokenReserve = getReserve();
+        ERC20 cryptoDevToken = ERC20(cryptoDevTokenAddress);
+        /*
+            If the reserve is empty, intake any user supplied value for
+            `Ether` and `Crypto Dev` tokens because there is no ratio currently
+        */
+        if(cryptoDevTokenReserve == 0) {
+            // Transfer the `cryptoDevToken` address from the user's account to the contract
+            cryptoDevToken.transferFrom(msg.sender, address(this), _amount);
+            // Take the current ethBalance and mint `ethBalance` amount of LP tokens to the user.
+            // `liquidity` provided is equal to `ethBalance` because this is the first time user
+            // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
+            // by the user in the current `addLiquidity` call
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be propotional
+            // to the eth specified by the user
+            liquidity = ethBalance;
+            _mint(msg.sender, liquidity);
+        } else {
+            /*
+                If the reserve is not empty, intake any user supplied value for
+                `Ether` and determine according to the ratio how many `Crypto Dev` tokens
+                need to be supplied to prevent any large price impacts because of the additional
+                liquidity
+            */
+            // EthReserve should be the current ethBalance subtracted by the value of ether sent by the user
+            // in the current `addLiquidity` call
+            uint ethReserve =  ethBalance - msg.value;
+            // Ratio should always be maintained so that there are no major price impacts when adding liquidity
+            // Ration here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
+            // So doing some maths, (cryptoDevTokenAmount user can add) = (Eth Sent by the user * cryptoDevTokenReserve /Eth Reserve);
+            uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
+            require(_amount >= cryptoDevTokenAmount, "Amount of tokens sent is less than the minimum tokens required");
+            // transfer only (cryptoDevTokenAmount user can add) amount of `Crypto Dev tokens` from users account
+            // to the contract
+            cryptoDevToken.transferFrom(msg.sender, address(this), cryptoDevTokenAmount);
+            // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
+            // ether added by the user
+            // Ratio here to be maintained is ->
+            // (lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
+            // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
+            liquidity = (totalSupply() * msg.value)/ ethReserve;
+            _mint(msg.sender, liquidity);
+        }
+         return liquidity;
+    }
+    ```
 
   - Now lets a function for `removing liquidity` from the contract.
 
@@ -197,44 +201,45 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - Ration is `(Crypto Dev sent back to the user/ Current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens)`
     - The `amount` of `LP` tokens that user would use to remove liquidity would be burnt
 
-    ```go
-    /**
-    @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
-    * in the swap
-    */
-    function removeLiquidity(uint _amount) public returns (uint , uint) {
-        require(_amount > 0, "_amount should be greater than zero");
-        uint ethReserve = address(this).balance;
-        uint _totalSupply = totalSupply();
-        // The amount of Eth that would be sent back to the user is based
-        // on a ratio
-        // Ratio is -> (Eth sent back to the user/ Current Eth reserve)
-        // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
-        // Then by some maths -> (Eth sent back to the user)
-        // = (Current Eth reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
-        uint ethAmount = (ethReserve * _amount)/ _totalSupply;
-        // The amount of Crypto Dev token that would be sent back to the user is based
-        // on a ratio
-        // Ratio is -> (Crypto Dev sent back to the user/ Current Crypto Dev token reserve)
-        // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
-        // Then by some maths -> (Crypto Dev sent back to the user/)
-        // = (Current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
-        uint cryptoDevTokenAmount = (getReserve() * _amount)/ _totalSupply;
-        // Burn the sent `LP` tokens from the user'a wallet because they are already sent to
-        // remove liquidity
-        _burn(msg.sender, _amount);
-        // Transfer `ethAmount` of Eth from user's wallet to the contract
-        payable(msg.sender).transfer(ethAmount);
-        // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract
-        ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
-        return (ethAmount, cryptoDevTokenAmount);
-    }
-    ```
+      ```go
+      /**
+      @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+      * in the swap
+      */
+      function removeLiquidity(uint _amount) public returns (uint , uint) {
+          require(_amount > 0, "_amount should be greater than zero");
+          uint ethReserve = address(this).balance;
+          uint _totalSupply = totalSupply();
+          // The amount of Eth that would be sent back to the user is based
+          // on a ratio
+          // Ratio is -> (Eth sent back to the user/ Current Eth reserve)
+          // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
+          // Then by some maths -> (Eth sent back to the user)
+          // = (Current Eth reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+          uint ethAmount = (ethReserve * _amount)/ _totalSupply;
+          // The amount of Crypto Dev token that would be sent back to the user is based
+          // on a ratio
+          // Ratio is -> (Crypto Dev sent back to the user/ Current Crypto Dev token reserve)
+          // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
+          // Then by some maths -> (Crypto Dev sent back to the user/)
+          // = (Current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+          uint cryptoDevTokenAmount = (getReserve() * _amount)/ _totalSupply;
+          // Burn the sent `LP` tokens from the user'a wallet because they are already sent to
+          // remove liquidity
+          _burn(msg.sender, _amount);
+          // Transfer `ethAmount` of Eth from user's wallet to the contract
+          payable(msg.sender).transfer(ethAmount);
+          // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract
+          ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
+          return (ethAmount, cryptoDevTokenAmount);
+      }
+      ```
 
     - Next lets implement the swap functionality
     - Swap would go two ways one way would be `Ether` to `Crypto Dev` tokens and other would be `Crypto Dev` to `Ether`
     - Its important for us to determine given `x` amount of Ether/Crypto Dev token sent by the user how many Ether/Crypto Dev token would he recieve from the swap
     - So lets create a function which calculates this:
+
       - We will charge `1%` this means the amount of input tokens with fees would equal
       - `Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100`
       - We need to follow the concept of `XY = K` curve
@@ -243,88 +248,88 @@ Hardhat is an Ethereum development environment and framework designed for full s
       - InputReserve and OuputReserve would depend on which swap we are implementing
         `Eth` to `Crypto Dev` token or vice versa
 
-    ```go
-       /**
-        @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
-        * in the swap
-        */
-        function getAmountOfTokens(
-            uint256 inputAmount,
-            uint256 inputReserve,
-            uint256 outputReserve
-        ) public pure returns (uint256) {
-            require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
-            // We are charging a fees of `1%`
-            // Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
-            uint256 inputAmountWithFee = inputAmount * 99;
-            // Because we need to follow the concept of `XY = K` curve
-            // We need to make sure (x + Δx)*(y - Δy) = (x)*(y)
-            // so the final formulae is Δy = (y*Δx)/(x + Δx);
-            // Δy in our case is `tokens to be recieved`
-            // Δx = ((input amount)*99)/100, x = inputReserve, y = outputReserve
-            // So by putting the values in the formulae you can get the numerator and denominator
-            uint256 numerator = inputAmountWithFee * outputReserve;
-            uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
-            return numerator / denominator;
-        }
-    ```
+        ```go
+           /**
+            @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+            * in the swap
+            */
+            function getAmountOfTokens(
+                uint256 inputAmount,
+                uint256 inputReserve,
+                uint256 outputReserve
+            ) public pure returns (uint256) {
+                require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
+                // We are charging a fees of `1%`
+                // Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
+                uint256 inputAmountWithFee = inputAmount * 99;
+                // Because we need to follow the concept of `XY = K` curve
+                // We need to make sure (x + Δx)*(y - Δy) = (x)*(y)
+                // so the final formulae is Δy = (y*Δx)/(x + Δx);
+                // Δy in our case is `tokens to be recieved`
+                // Δx = ((input amount)*99)/100, x = inputReserve, y = outputReserve
+                // So by putting the values in the formulae you can get the numerator and denominator
+                uint256 numerator = inputAmountWithFee * outputReserve;
+                uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
+                return numerator / denominator;
+            }
+        ```
 
-    - Now lets implement a function to swap `Ether` for `Crypto Dev` tokens
+        - Now lets implement a function to swap `Ether` for `Crypto Dev` tokens
 
-    ```go
-        /**
-         @dev Swaps Ether for CryptoDev Tokens
-        */
-        function ethToCryptoDevToken(uint _minTokens) public payable {
-        uint256 tokenReserve = getReserve();
-        // call the `getAmountOfTokens` to get the amount of crypto dev tokens
-        // that would be returned to the user after the swap
-        // Notice that the `inputReserve` we are sending is equal to
-        //  `address(this).balance - msg.value` instead of just `address(this).balance`
-        // because `address(this).balance` already contains the `msg.value` user has sent in the given call
-        // so we need to subtract it to get the actual input reserve
-        uint256 tokensBought = getAmountOfTokens(
-            msg.value,
-            address(this).balance - msg.value,
-            tokenReserve
-        );
-
-        require(tokensBought >= _minTokens, "insufficient output amount");
-        // Transfer the `Crypto Dev` tokens to the user
-        ERC20(cryptoDevTokenAddress).transfer(msg.sender, tokensBought);
-        }
-    ```
-
-    - Now lets implement a function to swap `Crypto Dev` tokens to `Ether`
-
-    ```go
-        /**
-        @dev Swaps CryptoDev Tokens for Ether
-        */
-        function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
-        uint256 tokenReserve = getReserve();
-            // call the `getAmountOfTokens` to get the amount of ether
+        ```go
+            /**
+             @dev Swaps Ether for CryptoDev Tokens
+            */
+            function ethToCryptoDevToken(uint _minTokens) public payable {
+            uint256 tokenReserve = getReserve();
+            // call the `getAmountOfTokens` to get the amount of crypto dev tokens
             // that would be returned to the user after the swap
-            uint256 ethBought = getAmountOfTokens(
-                _tokensSold,
-                tokenReserve,
-                address(this).balance
+            // Notice that the `inputReserve` we are sending is equal to
+            //  `address(this).balance - msg.value` instead of just `address(this).balance`
+            // because `address(this).balance` already contains the `msg.value` user has sent in the given call
+            // so we need to subtract it to get the actual input reserve
+            uint256 tokensBought = getAmountOfTokens(
+                msg.value,
+                address(this).balance - msg.value,
+                tokenReserve
             );
-            require(ethBought >= _minEth, "insufficient output amount");
-            // Transfer `Crypto Dev` tokens from the user's address to the contract
-            ERC20(cryptoDevTokenAddress).transferFrom(
-                msg.sender,
-                address(this),
-                _tokensSold
-            );
-            // send the `ethBought` to the user from the contract
-            payable(msg.sender).transfer(ethBought);
-        }
-    ```
+
+            require(tokensBought >= _minTokens, "insufficient output amount");
+            // Transfer the `Crypto Dev` tokens to the user
+            ERC20(cryptoDevTokenAddress).transfer(msg.sender, tokensBought);
+            }
+        ```
+
+        - Now lets implement a function to swap `Crypto Dev` tokens to `Ether`
+
+        ```go
+            /**
+            @dev Swaps CryptoDev Tokens for Ether
+            */
+            function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
+            uint256 tokenReserve = getReserve();
+                // call the `getAmountOfTokens` to get the amount of ether
+                // that would be returned to the user after the swap
+                uint256 ethBought = getAmountOfTokens(
+                    _tokensSold,
+                    tokenReserve,
+                    address(this).balance
+                );
+                require(ethBought >= _minEth, "insufficient output amount");
+                // Transfer `Crypto Dev` tokens from the user's address to the contract
+                ERC20(cryptoDevTokenAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    _tokensSold
+                );
+                // send the `ethBought` to the user from the contract
+                payable(msg.sender).transfer(ethBought);
+            }
+        ```
 
 - Your final contract should look like this:
 
-  ```go
+```go
   // SPDX-License-Identifier: MIT
   pragma solidity ^0.8.4;
   import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -499,17 +504,14 @@ Hardhat is an Ethereum development environment and framework designed for full s
         // send the `ethBought` to the user from the contract
         payable(msg.sender).transfer(ethBought);
     }
-  ```
-
-}
-
-````
+  }
+```
 
 - Compile the contract, open up a terminal pointing at `hardhat-tutorial` directory and execute this command
 
   ```bash
   npx hardhat compile
-````
+  ```
 
 - Now we would install `dotenv` package to be able to import the env file and use it in our config. Open up a terminal pointing at`hardhat-tutorial` directory and execute this command
 
@@ -519,18 +521,18 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
 - Now create a `.env` file in the `hardhat-tutorial` folder and add the following lines, use the instructions in the comments to get your Alchemy API Key URL and RINKEBY Private Key. Make sure that the account from which you get your rinkeby private key is funded with Rinkeby Ether.
 
-```
+  ```
 
-// Go to https://www.alchemyapi.io, sign up, create
-// a new App in its dashboard and select the network as Rinkeby, and replace "add-the-alchemy-key-url-here" with its key url
-ALCHEMY_API_KEY_URL="add-the-alchemy-key-url-here"
+  // Go to https://www.alchemyapi.io, sign up, create
+  // a new App in its dashboard and select the network as Rinkeby, and replace "add-the-alchemy-key-url-here" with its key url
+  ALCHEMY_API_KEY_URL="add-the-alchemy-key-url-here"
 
-// Replace this private key with your RINKEBY account private key
-// To export your private key from Metamask, open Metamask and
-// go to Account Details > Export Private Key
-// Be aware of NEVER putting real Ether into testing accounts
-RINKEBY_PRIVATE_KEY="add-the-rinkeby-private-key-here"
-```
+  // Replace this private key with your RINKEBY account private key
+  // To export your private key from Metamask, open Metamask and
+  // go to Account Details > Export Private Key
+  // Be aware of NEVER putting real Ether into testing accounts
+  RINKEBY_PRIVATE_KEY="add-the-rinkeby-private-key-here"
+  ```
 
 - Lets also create a constants folder to keep track of any constants we have. Under the `hardhat-tutorial` folder create a new folder named `constants` and under the `constants` folder create a new file `index.js`
 
@@ -589,28 +591,28 @@ RINKEBY_PRIVATE_KEY="add-the-rinkeby-private-key-here"
 
 - Now open the hardhat.config.js file, we would add the `rinkeby` network here so that we can deploy our contract to rinkeby. Replace all the lines in the `hardhart.config.js` file with the given below lines
 
-```js
-require("@nomiclabs/hardhat-waffle");
-require("dotenv").config({ path: ".env" });
+  ```js
+  require("@nomiclabs/hardhat-waffle");
+  require("dotenv").config({ path: ".env" });
 
-const ALCHEMY_API_KEY_URL = process.env.ALCHEMY_API_KEY_URL;
+  const ALCHEMY_API_KEY_URL = process.env.ALCHEMY_API_KEY_URL;
 
-const RINKEBY_PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
+  const RINKEBY_PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
 
-module.exports = {
-  solidity: "0.8.4",
-  networks: {
-    rinkeby: {
-      url: ALCHEMY_API_KEY_URL,
-      accounts: [RINKEBY_PRIVATE_KEY],
+  module.exports = {
+    solidity: "0.8.4",
+    networks: {
+      rinkeby: {
+        url: ALCHEMY_API_KEY_URL,
+        accounts: [RINKEBY_PRIVATE_KEY],
+      },
     },
-  },
-};
-```
+  };
+  ```
 
 - To deploy, open up a terminal pointing at`hardhat-tutorial` directory and execute this command
   ```bash
-      npx hardhat run scripts/deploy.js --network rinkeby
+   npx hardhat run scripts/deploy.js --network rinkeby
   ```
 - Save the Exchange Contract Address that was printed on your terminal in your notepad, you would need it futher down in the tutorial.
 
@@ -645,15 +647,15 @@ module.exports = {
 - Now lets install Web3Modal library(https://github.com/Web3Modal/web3modal). Web3Modal is an easy-to-use library to help developers add support for multiple providers in their apps with a simple customizable configuration. By default Web3Modal Library supports injected providers like (Metamask, Dapper, Gnosis Safe, Frame, Web3 Browsers, etc), You can also easily configure the library to support Portis, Fortmatic, Squarelink, Torus, Authereum, D'CENT Wallet and Arkane.
   Open up a terminal pointing at`my-app` directory and execute this command
 
-```bash
-  npm install web3modal
-```
+  ```bash
+    npm install web3modal
+  ```
 
 - In the same terminal also install `ethers.js`
 
-```bash
-npm i ethers
-```
+  ```bash
+  npm i ethers
+  ```
 
 - In your public folder, download this [image](https://github.com/LearnWeb3DAO/Defi-Exchange/blob/main/my-app/public/cryptodev.svg) and rename it to `cryptodev.svg`.
 
@@ -773,93 +775,99 @@ npm i ethers
 
 - Lets start by writing some code in `getAmounts.js`. This file is used to retrieve balances and reserves for assets
 
-```js
-import { Contract } from "ethers";
-import {
-  EXCHANGE_CONTRACT_ABI,
-  EXCHANGE_CONTRACT_ADDRESS,
-  TOKEN_CONTRACT_ABI,
-  TOKEN_CONTRACT_ADDRESS,
-} from "../constants";
+  ```js
+  import { Contract } from "ethers";
+  import {
+    EXCHANGE_CONTRACT_ABI,
+    EXCHANGE_CONTRACT_ADDRESS,
+    TOKEN_CONTRACT_ABI,
+    TOKEN_CONTRACT_ADDRESS,
+  } from "../constants";
 
-/**
- * getEtherBalance: Retrieves the ether balance of the user or the contract
- */
-export const getEtherBalance = async (provider, address, contract = false) => {
-  try {
-    // If the caller has set the `contract` boolean to true, retrieve the balance of
-    // ether in the `exchange contract`, if it is set to false, retrieve the balance
-    // of the user's address
-    if (contract) {
-      const balance = await provider.getBalance(EXCHANGE_CONTRACT_ADDRESS);
-      return balance;
-    } else {
-      const balance = await provider.getBalance(address);
-      return balance;
+  /**
+   * getEtherBalance: Retrieves the ether balance of the user or the contract
+   */
+  export const getEtherBalance = async (
+    provider,
+    address,
+    contract = false
+  ) => {
+    try {
+      // If the caller has set the `contract` boolean to true, retrieve the balance of
+      // ether in the `exchange contract`, if it is set to false, retrieve the balance
+      // of the user's address
+      if (contract) {
+        const balance = await provider.getBalance(EXCHANGE_CONTRACT_ADDRESS);
+        return balance;
+      } else {
+        const balance = await provider.getBalance(address);
+        return balance;
+      }
+    } catch (err) {
+      console.error(err);
+      return 0;
     }
-  } catch (err) {
-    console.error(err);
-    return 0;
-  }
-};
+  };
 
-/**
- * getCDTokensBalance: Retrieves the Crypto Dev tokens in the account
- * of the provided `adddress`
- */
-export const getCDTokensBalance = async (provider, address) => {
-  try {
-    const tokenContract = new Contract(
-      TOKEN_CONTRACT_ADDRESS,
-      TOKEN_CONTRACT_ABI,
-      provider
-    );
-    const balanceOfCryptoDevTokens = await tokenContract.balanceOf(address);
-    return balanceOfCryptoDevTokens;
-  } catch (err) {
-    console.error(err);
-  }
-};
+  /**
+   * getCDTokensBalance: Retrieves the Crypto Dev tokens in the account
+   * of the provided `adddress`
+   */
+  export const getCDTokensBalance = async (provider, address) => {
+    try {
+      const tokenContract = new Contract(
+        TOKEN_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI,
+        provider
+      );
+      const balanceOfCryptoDevTokens = await tokenContract.balanceOf(address);
+      return balanceOfCryptoDevTokens;
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-/**
- * getLPTokensBalance: Retrieves the amount of LP tokens in the account
- * of the provided `address`
- */
-export const getLPTokensBalance = async (provider, address) => {
-  try {
-    const exchangeContract = new Contract(
-      EXCHANGE_CONTRACT_ADDRESS,
-      EXCHANGE_CONTRACT_ABI,
-      provider
-    );
-    const balanceOfLPTokens = await exchangeContract.balanceOf(address);
-    return balanceOfLPTokens;
-  } catch (err) {
-    console.error(err);
-  }
-};
+  /**
+   * getLPTokensBalance: Retrieves the amount of LP tokens in the account
+   * of the provided `address`
+   */
+  export const getLPTokensBalance = async (provider, address) => {
+    try {
+      const exchangeContract = new Contract(
+        EXCHANGE_CONTRACT_ADDRESS,
+        EXCHANGE_CONTRACT_ABI,
+        provider
+      );
+      const balanceOfLPTokens = await exchangeContract.balanceOf(address);
+      return balanceOfLPTokens;
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-/**
- * getReserveOfCDTokens: Retrieves the amount of CD tokens in the
- * exchange contarct address
- */
-export const getReserveOfCDTokens = async (provider) => {
-  try {
-    const exchangeContract = new Contract(
-      EXCHANGE_CONTRACT_ADDRESS,
-      EXCHANGE_CONTRACT_ABI,
-      provider
-    );
-    const reserve = await exchangeContract.getReserve();
-    return reserve;
-  } catch (err) {
-    console.error(err);
-  }
-};
-```
+  /**
+   * getReserveOfCDTokens: Retrieves the amount of CD tokens in the
+   * exchange contarct address
+   */
+  export const getReserveOfCDTokens = async (provider) => {
+    try {
+      const exchangeContract = new Contract(
+        EXCHANGE_CONTRACT_ADDRESS,
+        EXCHANGE_CONTRACT_ABI,
+        provider
+      );
+      const reserve = await exchangeContract.getReserve();
+      return reserve;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  ```
 
 - Lets now write some code for `addLiquidity.js`.
+
   - `addLiquidity.js` has two functions `addLiquidity` and `calculateCD`
+
     - `addLiquidity` is used to call the `addLiquidity` function in the contract to add liquidity
     - It also get the `Crypto Dev` tokens approved for the contract by the user. The reason why `Crypto Dev` tokens need approval is because they are an ERC20 token. For the contract to withdraw an ERC20 from a user's account, he needs the approval from the user's account
     - `calculateCD` tells you for a given amount of `Eth`, how many `Crypto Dev` tokens can be added to the `liquidity`
@@ -868,82 +876,83 @@ export const getReserveOfCDTokens = async (provider) => {
     - The ratio is needed so that adding liquidity doesnt largely impact the price
     - Note `tx.wait()` means we are waiting for the transaction to get mined
 
-```js
-import { Contract, utils } from "ethers";
-import {
-  EXCHANGE_CONTRACT_ABI,
-  EXCHANGE_CONTRACT_ADDRESS,
-  TOKEN_CONTRACT_ABI,
-  TOKEN_CONTRACT_ADDRESS,
-} from "../constants";
-
-/**
- * addLiquidity helps add liquidity to the exchange,
- * If the user is adding initial liquidity, user decides the ether and CD tokens he wants to add
- * to the exchange. If we he adding the liquidity after the initial liquidity has already been added
- * then we calculate the crypto dev tokens he can add, given the eth he wants to add by keeping the ratios
- * constant
- */
-export const addLiquidity = async (
-  signer,
-  addCDAmountWei,
-  addEtherAmountWei
-) => {
-  try {
-    // create a new instance of the token contract
-    const tokenContract = new Contract(
-      TOKEN_CONTRACT_ADDRESS,
-      TOKEN_CONTRACT_ABI,
-      signer
-    );
-    // create a new instance of the exchange contract
-    const exchangeContract = new Contract(
-      EXCHANGE_CONTRACT_ADDRESS,
+    ```js
+    import { Contract, utils } from "ethers";
+    import {
       EXCHANGE_CONTRACT_ABI,
-      signer
-    );
-    // Because CD tokens are an ERC20, user would need to give the contract allowance
-    // to take the required number CD tokens out of his contract
-    let tx = await tokenContract.approve(
       EXCHANGE_CONTRACT_ADDRESS,
-      addCDAmountWei.toString()
-    );
-    await tx.wait();
-    // After the contract has the approval, add the ether and cd tokens in the liquidity
-    tx = await exchangeContract.addLiquidity(addCDAmountWei, {
-      value: addEtherAmountWei,
-    });
-    await tx.wait();
-  } catch (err) {
-    console.error(err);
-  }
-};
+      TOKEN_CONTRACT_ABI,
+      TOKEN_CONTRACT_ADDRESS,
+    } from "../constants";
 
-/**
- * calculateCD calculates the CD tokens that need to be added to the liquidity
- * given `_addEtherAmountWei` amount of ether
- */
-export const calculateCD = async (
-  _addEther = "0",
-  etherBalanceContract,
-  cdTokenReserve
-) => {
-  // `_addEther` is a string, we need to convert it to a Bignumber before we can do our calculations
-  // We do that using the `parseEther` function from `ethers.js`
-  const _addEtherAmountWei = utils.parseEther(_addEther);
-  // Ratio needs to be maintained when we add liquiidty.
-  // We need to let the user know who a specific amount of ether how many `CD` tokens
-  // he can add so that the price impact is not large
-  // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)
-  // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)
-  const cryptoDevTokenAmount = _addEtherAmountWei
-    .mul(cdTokenReserve)
-    .div(etherBalanceContract);
-  return cryptoDevTokenAmount;
-};
-```
+    /**
+     * addLiquidity helps add liquidity to the exchange,
+     * If the user is adding initial liquidity, user decides the ether and CD tokens he wants to add
+     * to the exchange. If we he adding the liquidity after the initial liquidity has already been added
+     * then we calculate the crypto dev tokens he can add, given the eth he wants to add by keeping the ratios
+     * constant
+     */
+    export const addLiquidity = async (
+      signer,
+      addCDAmountWei,
+      addEtherAmountWei
+    ) => {
+      try {
+        // create a new instance of the token contract
+        const tokenContract = new Contract(
+          TOKEN_CONTRACT_ADDRESS,
+          TOKEN_CONTRACT_ABI,
+          signer
+        );
+        // create a new instance of the exchange contract
+        const exchangeContract = new Contract(
+          EXCHANGE_CONTRACT_ADDRESS,
+          EXCHANGE_CONTRACT_ABI,
+          signer
+        );
+        // Because CD tokens are an ERC20, user would need to give the contract allowance
+        // to take the required number CD tokens out of his contract
+        let tx = await tokenContract.approve(
+          EXCHANGE_CONTRACT_ADDRESS,
+          addCDAmountWei.toString()
+        );
+        await tx.wait();
+        // After the contract has the approval, add the ether and cd tokens in the liquidity
+        tx = await exchangeContract.addLiquidity(addCDAmountWei, {
+          value: addEtherAmountWei,
+        });
+        await tx.wait();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    /**
+     * calculateCD calculates the CD tokens that need to be added to the liquidity
+     * given `_addEtherAmountWei` amount of ether
+     */
+    export const calculateCD = async (
+      _addEther = "0",
+      etherBalanceContract,
+      cdTokenReserve
+    ) => {
+      // `_addEther` is a string, we need to convert it to a Bignumber before we can do our calculations
+      // We do that using the `parseEther` function from `ethers.js`
+      const _addEtherAmountWei = utils.parseEther(_addEther);
+      // Ratio needs to be maintained when we add liquiidty.
+      // We need to let the user know who a specific amount of ether how many `CD` tokens
+      // he can add so that the price impact is not large
+      // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)
+      // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)
+      const cryptoDevTokenAmount = _addEtherAmountWei
+        .mul(cdTokenReserve)
+        .div(etherBalanceContract);
+      return cryptoDevTokenAmount;
+    };
+    ```
 
 - Now add some code to `removeLiquidity.js`
+
   - We have two functions here one is `removeLiquidity` and other is `getTokensAfterRemove`
   - `removeLiquidity` calls the `removeLiquidity` function from the contract,
     to remove the amount of `LP` tokens specified by the user
@@ -957,68 +966,74 @@ export const calculateCD = async (
   - Ratio is -> `(amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)`
   - Then `(amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)`
 
-```js
-import { Contract, providers, utils, BigNumber } from "ethers";
-import { EXCHANGE_CONTRACT_ABI, EXCHANGE_CONTRACT_ADDRESS } from "../constants";
-
-/**
- * removeLiquidity: Removes the `removeLPTokensWei` amount of LP tokens from
- * liquidity and also the calculated amount of `ether` and `CD` tokens
- */
-export const removeLiquidity = async (signer, removeLPTokensWei) => {
-  // Create a new instance of the exchange contract
-  const exchangeContract = new Contract(
-    EXCHANGE_CONTRACT_ADDRESS,
-    EXCHANGE_CONTRACT_ABI,
-    signer
-  );
-  const tx = await exchangeContract.removeLiquidity(removeLPTokensWei);
-  await tx.wait();
-};
-
-/**
- * getTokensAfterRemove: Calculates the amount of `Ether` and `CD` tokens
- * that would be returned back to user after he removes `removeLPTokenWei` amount
- * of LP tokens from the contract
- */
-export const getTokensAfterRemove = async (
-  provider,
-  removeLPTokenWei,
-  _ethBalance,
-  cryptoDevTokenReserve
-) => {
-  try {
-    // Create a new instance of the exchange contract
-    const exchangeContract = new Contract(
-      EXCHANGE_CONTRACT_ADDRESS,
+    ```js
+    import { Contract, providers, utils, BigNumber } from "ethers";
+    import {
       EXCHANGE_CONTRACT_ABI,
-      provider
-    );
-    // Get the total supply of `Crypto Dev` LP tokens
-    const _totalSupply = await exchangeContract.totalSupply();
-    // Here we are using the Bignumber methods of multiplication and division
-    // The amount of ether that would be sent back to the user after he withdraws the LP token
-    // id calculated based on a ratio,
-    // Ratio is -> (amount of ether that would be sent back to the user/ Eth reserves) = (LP tokens withdrawn)/(Total supply of LP tokens)
-    // By some maths we get -> (amount of ether that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn)/(Total supply of LP tokens)
-    // Similariy we also maintain a ratio for the `CD` tokens, so here in our case
-    // Ratio is -> (amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)
-    // Then (amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)
-    const _removeEther = _ethBalance.mul(removeLPTokenWei).div(_totalSupply);
-    const _removeCD = cryptoDevTokenReserve
-      .mul(removeLPTokenWei)
-      .div(_totalSupply);
-    return {
-      _removeEther,
-      _removeCD,
+      EXCHANGE_CONTRACT_ADDRESS,
+    } from "../constants";
+
+    /**
+     * removeLiquidity: Removes the `removeLPTokensWei` amount of LP tokens from
+     * liquidity and also the calculated amount of `ether` and `CD` tokens
+     */
+    export const removeLiquidity = async (signer, removeLPTokensWei) => {
+      // Create a new instance of the exchange contract
+      const exchangeContract = new Contract(
+        EXCHANGE_CONTRACT_ADDRESS,
+        EXCHANGE_CONTRACT_ABI,
+        signer
+      );
+      const tx = await exchangeContract.removeLiquidity(removeLPTokensWei);
+      await tx.wait();
     };
-  } catch (err) {
-    console.error(err);
-  }
-};
-```
+
+    /**
+     * getTokensAfterRemove: Calculates the amount of `Ether` and `CD` tokens
+     * that would be returned back to user after he removes `removeLPTokenWei` amount
+     * of LP tokens from the contract
+     */
+    export const getTokensAfterRemove = async (
+      provider,
+      removeLPTokenWei,
+      _ethBalance,
+      cryptoDevTokenReserve
+    ) => {
+      try {
+        // Create a new instance of the exchange contract
+        const exchangeContract = new Contract(
+          EXCHANGE_CONTRACT_ADDRESS,
+          EXCHANGE_CONTRACT_ABI,
+          provider
+        );
+        // Get the total supply of `Crypto Dev` LP tokens
+        const _totalSupply = await exchangeContract.totalSupply();
+        // Here we are using the Bignumber methods of multiplication and division
+        // The amount of ether that would be sent back to the user after he withdraws the LP token
+        // id calculated based on a ratio,
+        // Ratio is -> (amount of ether that would be sent back to the user/ Eth reserves) = (LP tokens withdrawn)/(Total supply of LP tokens)
+        // By some maths we get -> (amount of ether that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn)/(Total supply of LP tokens)
+        // Similariy we also maintain a ratio for the `CD` tokens, so here in our case
+        // Ratio is -> (amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)
+        // Then (amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)
+        const _removeEther = _ethBalance
+          .mul(removeLPTokenWei)
+          .div(_totalSupply);
+        const _removeCD = cryptoDevTokenReserve
+          .mul(removeLPTokenWei)
+          .div(_totalSupply);
+        return {
+          _removeEther,
+          _removeCD,
+        };
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    ```
 
 - Now its time to write code for `swap.js` our last `utils` file
+
   - It has two functions `getAmountOfTokenRecievedFromSwap` and `swapTokens`
   - `swap tokens` swaps certain amount of `Eth/Crypto Dev` tokens with `Eth/Crypto Dev` tokens
   - If Eth has been selected by the user from the ui, it means that the user has `Eth` and he wants to swap it for certain amount of `Crypto Dev` tokens
@@ -1028,105 +1043,105 @@ export const getTokensAfterRemove = async (
   - `getAmountOfTokensReceivedFromSwap` is a function which calculates that given a certain amount of `Eth/Crypto Dev` tokens, how many `Eth/Crypto Dev` tokens would be sent back to the user
   - If Eth is selected it calls the `getAmountOfTokens` from the contract which takes in a `input` reserve and an `output` reserve. Here input reserve would be the `ethBalance` of the contract and output reserve would be the `Crypto Dev token` reserve. Opposite would be true, if Eth is not selected
 
-```js
-import { Contract } from "ethers";
-import {
-  EXCHANGE_CONTRACT_ABI,
-  EXCHANGE_CONTRACT_ADDRESS,
-  TOKEN_CONTRACT_ABI,
-  TOKEN_CONTRACT_ADDRESS,
-} from "../constants";
+    ```js
+    import { Contract } from "ethers";
+    import {
+      EXCHANGE_CONTRACT_ABI,
+      EXCHANGE_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI,
+      TOKEN_CONTRACT_ADDRESS,
+    } from "../constants";
 
-/*
-    getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
-    when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
-*/
-export const getAmountOfTokensReceivedFromSwap = async (
-  _swapAmountWei,
-  provider,
-  ethSelected,
-  ethBalance,
-  reservedCD
-) => {
-  // Create a new instance of the exchange contract
-  const exchangeContract = new Contract(
-    EXCHANGE_CONTRACT_ADDRESS,
-    EXCHANGE_CONTRACT_ABI,
-    provider
-  );
-  let amountOfTokens;
-  // If ETH is selected this means our input value is `Eth` which means our input amount would be
-  // `_swapAmountWei`, the input reserve would be the `ethBalance` of the contract and output reserve
-  // would be the  `Crypto Dev token` reserve
-  if (ethSelected) {
-    amountOfTokens = await exchangeContract.getAmountOfTokens(
+    /*
+        getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
+        when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
+    */
+    export const getAmountOfTokensReceivedFromSwap = async (
       _swapAmountWei,
+      provider,
+      ethSelected,
       ethBalance,
       reservedCD
-    );
-  } else {
-    // If ETH is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
-    // `_swapAmountWei`, the input reserve would be the `Crypto Dev token` reserve of the contract and output reserve
-    // would be the `ethBalance`
-    amountOfTokens = await exchangeContract.getAmountOfTokens(
-      _swapAmountWei,
-      reservedCD,
-      ethBalance
-    );
-  }
-
-  return amountOfTokens;
-};
-
-/*
-  swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
-*/
-export const swapTokens = async (
-  signer,
-  swapAmountWei,
-  tokenToBeRecievedAfterSwap,
-  ethSelected
-) => {
-  // Create a new instance of the exchange contract
-  const exchangeContract = new Contract(
-    EXCHANGE_CONTRACT_ADDRESS,
-    EXCHANGE_CONTRACT_ABI,
-    signer
-  );
-  const tokenContract = new Contract(
-    TOKEN_CONTRACT_ADDRESS,
-    TOKEN_CONTRACT_ABI,
-    signer
-  );
-  let tx;
-  // If Eth is selected call the `ethToCryptoDevToken` function else
-  // call the `cryptoDevTokenToEth` function from the contract
-  // As you can see you need to pass the `swapAmount` as a value to the function because
-  // It is the ether we are paying to the contract, instead of a value we are passing to the function
-  if (ethSelected) {
-    tx = await exchangeContract.ethToCryptoDevToken(
-      tokenToBeRecievedAfterSwap,
-      {
-        value: swapAmountWei,
+    ) => {
+      // Create a new instance of the exchange contract
+      const exchangeContract = new Contract(
+        EXCHANGE_CONTRACT_ADDRESS,
+        EXCHANGE_CONTRACT_ABI,
+        provider
+      );
+      let amountOfTokens;
+      // If ETH is selected this means our input value is `Eth` which means our input amount would be
+      // `_swapAmountWei`, the input reserve would be the `ethBalance` of the contract and output reserve
+      // would be the  `Crypto Dev token` reserve
+      if (ethSelected) {
+        amountOfTokens = await exchangeContract.getAmountOfTokens(
+          _swapAmountWei,
+          ethBalance,
+          reservedCD
+        );
+      } else {
+        // If ETH is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
+        // `_swapAmountWei`, the input reserve would be the `Crypto Dev token` reserve of the contract and output reserve
+        // would be the `ethBalance`
+        amountOfTokens = await exchangeContract.getAmountOfTokens(
+          _swapAmountWei,
+          reservedCD,
+          ethBalance
+        );
       }
-    );
-  } else {
-    // User has to approve `swapAmountWei` for the contract because `Crypto Dev Token`
-    // is an ERC20
-    tx = await tokenContract.approve(
-      EXCHANGE_CONTRACT_ADDRESS,
-      swapAmountWei.toString()
-    );
-    await tx.wait();
-    // call cryptoDebTokenToEth function which would take in `swapAmounWei` of crypto dev tokens and would send back `tokenToBeRecievedAfterSwap` amount of ether to the user
-    tx = await exchangeContract.cryptoDevTokenToEth(
+
+      return amountOfTokens;
+    };
+
+    /*
+      swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
+    */
+    export const swapTokens = async (
+      signer,
       swapAmountWei,
-      tokenToBeRecievedAfterSwap
-    );
-  }
-  await tx.wait();
-};
-```
+      tokenToBeRecievedAfterSwap,
+      ethSelected
+    ) => {
+      // Create a new instance of the exchange contract
+      const exchangeContract = new Contract(
+        EXCHANGE_CONTRACT_ADDRESS,
+        EXCHANGE_CONTRACT_ABI,
+        signer
+      );
+      const tokenContract = new Contract(
+        TOKEN_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI,
+        signer
+      );
+      let tx;
+      // If Eth is selected call the `ethToCryptoDevToken` function else
+      // call the `cryptoDevTokenToEth` function from the contract
+      // As you can see you need to pass the `swapAmount` as a value to the function because
+      // It is the ether we are paying to the contract, instead of a value we are passing to the function
+      if (ethSelected) {
+        tx = await exchangeContract.ethToCryptoDevToken(
+          tokenToBeRecievedAfterSwap,
+          {
+            value: swapAmountWei,
+          }
+        );
+      } else {
+        // User has to approve `swapAmountWei` for the contract because `Crypto Dev Token`
+        // is an ERC20
+        tx = await tokenContract.approve(
+          EXCHANGE_CONTRACT_ADDRESS,
+          swapAmountWei.toString()
+        );
+        await tx.wait();
+        // call cryptoDebTokenToEth function which would take in `swapAmounWei` of crypto dev tokens and would send back `tokenToBeRecievedAfterSwap` amount of ether to the user
+        tx = await exchangeContract.cryptoDevTokenToEth(
+          swapAmountWei,
+          tokenToBeRecievedAfterSwap
+        );
+      }
+      await tx.wait();
+    };
+    ```
 
 - Now its time for the final stages of our app, lets add some code to the `pages/index.js` file which next already gives you. Replace all the contents of the file with the following content
 
@@ -1673,7 +1688,7 @@ We will now deploy your dApp, so that everyone can see your website and you can 
 
 - Go to https://vercel.com/ and sign in with your GitHub
 - Then click on `New Project` button and then select your Defi-Exchange dApp repo
-- ![](https://i.imgur.com/ZRjfkCE.png)
+- ![](https://i.imgur.com/F2sbvN6.png)
 - When configuring your new project, Vercel will allow you to customize your `Root Directory`
 - Click `Edit` next to `Root Directory` and set it to `my-app`
 - Click `Deploy`
