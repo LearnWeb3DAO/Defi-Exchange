@@ -24,6 +24,9 @@ export const getAmountOfTokensReceivedFromSwap = async (
     provider
   );
   let amountOfTokens;
+  // If ETH is selected this means our input value is `Eth` which means our input amount would be
+  // `_swapAmountWei`, the input reserve would be the `ethBalance` of the contract and output reserve
+  // would be the  `Crypto Dev token` reserve
   if (ethSelected) {
     amountOfTokens = await exchangeContract.getAmountOfTokens(
       _swapAmountWei,
@@ -31,6 +34,9 @@ export const getAmountOfTokensReceivedFromSwap = async (
       reservedCD
     );
   } else {
+    // If ETH is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
+    // `_swapAmountWei`, the input reserve would be the `Crypto Dev token` reserve of the contract and output reserve
+    // would be the `ethBalance`
     amountOfTokens = await exchangeContract.getAmountOfTokens(
       _swapAmountWei,
       reservedCD,
@@ -64,6 +70,8 @@ export const swapTokens = async (
   let tx;
   // If Eth is selected call the `ethToCryptoDevToken` function else
   // call the `cryptoDevTokenToEth` function from the contract
+  // As you can see you need to pass the `swapAmount` as a value to the function because
+  // It is the ether we are paying to the contract, instead of a value we are passing to the function
   if (ethSelected) {
     tx = await exchangeContract.ethToCryptoDevToken(
       tokenToBeRecievedAfterSwap,
@@ -79,6 +87,7 @@ export const swapTokens = async (
       swapAmountWei.toString()
     );
     await tx.wait();
+    // call cryptoDebTokenToEth function which would take in `swapAmounWei` of crypto dev tokens and would send back `tokenToBeRecievedAfterSwap` amount of ether to the user
     tx = await exchangeContract.cryptoDevTokenToEth(
       swapAmountWei,
       tokenToBeRecievedAfterSwap

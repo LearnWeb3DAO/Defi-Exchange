@@ -54,12 +54,19 @@ export const addLiquidity = async (
  */
 export const calculateCD = async (
   _addEther = "0",
-  ethBalance,
+  etherBalanceContract,
   cdTokenReserve
 ) => {
+  // `_addEther` is a string, we need to convert it to a Bignumber before we can do our calculations
+  // We do that using the `parseEther` function from `ethers.js`
   const _addEtherAmountWei = utils.parseEther(_addEther);
+  // Ratio needs to be maintained when we add liquiidty.
+  // We need to let the user know who a specific amount of ether how many `CD` tokens
+  // he can add so that the price impact is not large
+  // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)
+  // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)
   const cryptoDevTokenAmount = _addEtherAmountWei
     .mul(cdTokenReserve)
-    .div(ethBalance);
+    .div(etherBalanceContract);
   return cryptoDevTokenAmount;
 };
