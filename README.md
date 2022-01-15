@@ -23,7 +23,7 @@ Lets start building 🚀
 
 - You have completed the [ICO tutorial](https://github.com/LearnWeb3DAO/ICO)
 - You have completed the [Defi Exchange Theory Tutorial](https://github.com/LearnWeb3DAO/Defi-Exchange-Theory)
-- You have completed the [Common Topics Tutorial](https://github.com/LearnWeb3DAO/Common-Topics)
+- You have completed the [Mixed Topics Tutorial](https://github.com/LearnWeb3DAO/Sophomore-Mixed-Topics)
 
 ---
 
