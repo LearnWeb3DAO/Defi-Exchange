@@ -2,9 +2,9 @@
 
 Now its time for you to launch a DeFi Exchange for your `Crypto Dev` tokens
 
-![](https://i.imgur.com/HwoRAeC.png)
+![](https://i.imgur.com/nvLT06K.png)
 
-![](https://i.imgur.com/IskawSY.png)
+![](https://i.imgur.com/uWJAYcZ.png)
 
 ---
 
@@ -72,15 +72,15 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
     - We imported `ERC20.sol` because our Exchange needs to mint and create `Crypto Dev LP` tokens thats why it needs to inherit ERC20.sol
 
-    ```go
-            // SPDX-License-Identifier: MIT
-            pragma solidity ^0.8.4;
+      ```go
+      // SPDX-License-Identifier: MIT
+      pragma solidity ^0.8.4;
 
-            import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+      import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-            contract Exchange is ERC20 {
-            }
-    ```
+      contract Exchange is ERC20 {
+      }
+      ```
 
   - Now lets create a `constructor` for our contract
 
@@ -137,7 +137,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
     - In the inital liquidity case,when there is no liquidity. The amount of `LP` tokens that would be minted to the user is equal to the ethBalance of the contract(because balance is equal to the Eth sent by the user in the `addLiquidity` call)
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted are based on a ratio.
-    - The ratio is `(lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)`
+    - The ratio is `(LP tokens to be sent to the user(liquidity) / totalSupply of LP tokens in contract) = (eth sent by the user) / (eth reserve in the contract)`
 
     ```go
         /**
@@ -197,7 +197,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
     - The amount of ether that would be sent back to the user would be based on a ratio
     - Ratio is `Eth sent back to the user/ Current Eth reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens`
-    - The amount of Crypto Dev †okens that would be sent back to the user would also be based on a ratio
+    - The amount of Crypto Dev tokens that would be sent back to the user would also be based on a ratio
     - Ration is `(Crypto Dev sent back to the user/ Current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens)`
     - The `amount` of `LP` tokens that user would use to remove liquidity would be burnt
 
@@ -521,7 +521,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
 - Now create a `.env` file in the `hardhat-tutorial` folder and add the following lines, use the instructions in the comments to get your Alchemy API Key URL and RINKEBY Private Key. Make sure that the account from which you get your rinkeby private key is funded with Rinkeby Ether.
 
-  ```
+  ```bash
 
   // Go to https://www.alchemyapi.io, sign up, create
   // a new App in its dashboard and select the network as Rinkeby, and replace "add-the-alchemy-key-url-here" with its key url
@@ -624,13 +624,13 @@ Hardhat is an Ethereum development environment and framework designed for full s
   ```
      - DeFi-Exchange
          - hardhat-tutorial
-         - next-app
+         - my-app
   ```
 
-- To create this `next-app`, in the terminal point to Whitelist-Dapp folder and type
+- To create this `my-app`, in the terminal point to Whitelist-Dapp folder and type
 
   ```bash
-      npx create-next-app@latest
+    npx create-next-app@latest
   ```
 
   and press `enter` for all the questions
@@ -764,18 +764,19 @@ Hardhat is an Ethereum development environment and framework designed for full s
   - Replace `ABI-EXCHANGE-CONTRACT` with the abi of the Exchange Contract. To get the abi for your contract, go to your `hardhat-tutorial/artifacts/contracts/Exchange.sol` folder and from your `Exchange.json` file get the array marked under the `"abi"` key.
   - Replace `ADDRESS-EXCHANGE-CONTRACT` with the address of the exchange contract that you deployed above and saved to your notepad
 
-  ```js
-  export const TOKEN_CONTRACT_ABI = "ABI-CRYPTO-DEV-TOKEN-CONTRACT";
-  export const TOKEN_CONTRACT_ADDRESS = "ADDRESS-OF-CRYPTO-DEV-TOKEN-CONTRACT";
-  export const EXCHANGE_CONTRACT_ABI = "ABI-EXCHANGE-CONTRACT";
-  export const EXCHANGE_CONTRACT_ADDRESS = "ADDRESS-EXCHANGE-CONTRACT";
-  ```
+    ```javascript
+    export const TOKEN_CONTRACT_ABI = "ABI-CRYPTO-DEV-TOKEN-CONTRACT";
+    export const TOKEN_CONTRACT_ADDRESS =
+      "ADDRESS-OF-CRYPTO-DEV-TOKEN-CONTRACT";
+    export const EXCHANGE_CONTRACT_ABI = "ABI-EXCHANGE-CONTRACT";
+    export const EXCHANGE_CONTRACT_ADDRESS = "ADDRESS-EXCHANGE-CONTRACT";
+    ```
 
 - Now we would create some utility files which would help us to better interact with the contract.Create a `utils` folder inside the `my-app` folder and inside the folder create 4 files: `addLiquidity.js, `removeLiquidity.js`, `getAmounts.js`and `swap.js`
 
 - Lets start by writing some code in `getAmounts.js`. This file is used to retrieve balances and reserves for assets
 
-  ```js
+  ```javascript
   import { Contract } from "ethers";
   import {
     EXCHANGE_CONTRACT_ABI,
@@ -876,7 +877,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - The ratio is needed so that adding liquidity doesnt largely impact the price
     - Note `tx.wait()` means we are waiting for the transaction to get mined
 
-    ```js
+    ```javascript
     import { Contract, utils } from "ethers";
     import {
       EXCHANGE_CONTRACT_ABI,
@@ -966,7 +967,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
   - Ratio is -> `(amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)`
   - Then `(amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)`
 
-    ```js
+    ```javascript
     import { Contract, providers, utils, BigNumber } from "ethers";
     import {
       EXCHANGE_CONTRACT_ABI,
@@ -1043,7 +1044,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
   - `getAmountOfTokensReceivedFromSwap` is a function which calculates that given a certain amount of `Eth/Crypto Dev` tokens, how many `Eth/Crypto Dev` tokens would be sent back to the user
   - If Eth is selected it calls the `getAmountOfTokens` from the contract which takes in a `input` reserve and an `output` reserve. Here input reserve would be the `ethBalance` of the contract and output reserve would be the `Crypto Dev token` reserve. Opposite would be true, if Eth is not selected
 
-    ```js
+    ```javascript
     import { Contract } from "ethers";
     import {
       EXCHANGE_CONTRACT_ABI,
@@ -1626,7 +1627,7 @@ export default function Home() {
     <div>
       <Head>
         <title>Crypto Devs</title>
-        <meta name="description" content="Whitelist-Dapp" />
+        <meta name="description" content="Exchange-Dapp" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={styles.main}>
