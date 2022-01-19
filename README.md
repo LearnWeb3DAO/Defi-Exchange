@@ -507,12 +507,6 @@ Hardhat is an Ethereum development environment and framework designed for full s
   }
 ```
 
-- Compile the contract, open up a terminal pointing at `hardhat-tutorial` directory and execute this command
-
-  ```bash
-  npx hardhat compile
-  ```
-
 - Now we would install `dotenv` package to be able to import the env file and use it in our config. Open up a terminal pointing at`hardhat-tutorial` directory and execute this command
 
   ```bash
@@ -609,7 +603,12 @@ Hardhat is an Ethereum development environment and framework designed for full s
     },
   };
   ```
+  
+- Compile the contract, open up a terminal pointing at `hardhat-tutorial` directory and execute this command
 
+  ```bash
+  npx hardhat compile
+  ```
 - To deploy, open up a terminal pointing at`hardhat-tutorial` directory and execute this command
   ```bash
    npx hardhat run scripts/deploy.js --network rinkeby
