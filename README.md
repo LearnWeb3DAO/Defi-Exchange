@@ -159,7 +159,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // `liquidity` provided is equal to `ethBalance` because this is the first time user
             // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
             // by the user in the current `addLiquidity` call
-            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be propotional
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call should always be propotional
             // to the eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
