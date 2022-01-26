@@ -11,7 +11,7 @@ Now its time for you to launch a DeFi Exchange for your `Crypto Dev` tokens
 ## Requirements
 
 - Build an exhange with only one asset pair (Eth <> Crypto Dev)
-- Your NFT Collection should take a fees of `1%` on swaps
+- Your Decentralized Exchange should take a fees of `1%` on swaps
 - When user adds liquidity, they should be given `Crypto Dev LP` tokens (Liquidity Provider tokens)
 - CD LP tokens should be given propotional to the `Ether` user is willing to add to the liquidity
 
@@ -153,16 +153,17 @@ Hardhat is an Ethereum development environment and framework designed for full s
             `Ether` and `Crypto Dev` tokens because there is no ratio currently
         */
         if(cryptoDevTokenReserve == 0) {
-            // Transfer the `cryptoDevToken` address from the user's account to the contract
+            // Transfer the `cryptoDevToken` from the user's account to the contract
             cryptoDevToken.transferFrom(msg.sender, address(this), _amount);
             // Take the current ethBalance and mint `ethBalance` amount of LP tokens to the user.
             // `liquidity` provided is equal to `ethBalance` because this is the first time user
             // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
             // by the user in the current `addLiquidity` call
-            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be propotional
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call should always be propotional
             // to the eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
+            // _mint is ERC20.sol smart contract function to mint ERC20 tokens
         } else {
             /*
                 If the reserve is not empty, intake any user supplied value for
@@ -172,9 +173,9 @@ Hardhat is an Ethereum development environment and framework designed for full s
             */
             // EthReserve should be the current ethBalance subtracted by the value of ether sent by the user
             // in the current `addLiquidity` call
-            uint ethReserve =  ethBalance - msg.value;
+            uint ethReserve =  ethBalance - _amount;
             // Ratio should always be maintained so that there are no major price impacts when adding liquidity
-            // Ration here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
+            // Ratio here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
             // So doing some maths, (cryptoDevTokenAmount user can add) = (Eth Sent by the user * cryptoDevTokenReserve /Eth Reserve);
             uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
             require(_amount >= cryptoDevTokenAmount, "Amount of tokens sent is less than the minimum tokens required");
@@ -184,7 +185,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
             // ether added by the user
             // Ratio here to be maintained is ->
-            // (lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
+            // (LP tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
             // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
             liquidity = (totalSupply() * msg.value)/ ethReserve;
             _mint(msg.sender, liquidity);
@@ -198,7 +199,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - The amount of ether that would be sent back to the user would be based on a ratio
     - Ratio is `Eth sent back to the user/ Current Eth reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens`
     - The amount of Crypto Dev tokens that would be sent back to the user would also be based on a ratio
-    - Ration is `(Crypto Dev sent back to the user/ Current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens)`
+    - Ratio is `(Crypto Dev sent back to the user/ Current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens)`
     - The `amount` of `LP` tokens that user would use to remove liquidity would be burnt
 
       ```go
@@ -385,7 +386,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // in the current `addLiquidity` call
             uint ethReserve =  ethBalance - msg.value;
             // Ratio should always be maintained so that there are no major price impacts when adding liquidity
-            // Ration here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
+            // Ratio here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
             // So doing some maths, (cryptoDevTokenAmount user can add) = (Eth Sent by the user * cryptoDevTokenReserve /Eth Reserve);
             uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
             require(_amount >= cryptoDevTokenAmount, "Amount of tokens sent is less than the minimum tokens required");
