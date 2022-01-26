@@ -163,6 +163,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // to the eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
+            // _mint is ERC20.sol smart contract function to mint ERC20 tokens
         } else {
             /*
                 If the reserve is not empty, intake any user supplied value for
