@@ -184,7 +184,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
             // ether added by the user
             // Ratio here to be maintained is ->
-            // (lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
+            // (LP tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
             // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
             liquidity = (totalSupply() * msg.value)/ ethReserve;
             _mint(msg.sender, liquidity);
