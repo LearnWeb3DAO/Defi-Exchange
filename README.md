@@ -153,7 +153,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             `Ether` and `Crypto Dev` tokens because there is no ratio currently
         */
         if(cryptoDevTokenReserve == 0) {
-            // Transfer the `cryptoDevToken` address from the user's account to the contract
+            // Transfer the `cryptoDevToken` from the user's account to the contract
             cryptoDevToken.transferFrom(msg.sender, address(this), _amount);
             // Take the current ethBalance and mint `ethBalance` amount of LP tokens to the user.
             // `liquidity` provided is equal to `ethBalance` because this is the first time user
