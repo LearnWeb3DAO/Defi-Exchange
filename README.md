@@ -572,14 +572,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
         console.error(error);
         process.exit(1);
     });
-
-    // Call the main function and catch if there is any error
-    main()
-        .then(() => process.exit(0))
-        .catch((error) => {
-        console.error(error);
-        process.exit(1);
-        });
+    
   ```
 
 - Now open the hardhat.config.js file, we would add the `rinkeby` network here so that we can deploy our contract to rinkeby. Replace all the lines in the `hardhart.config.js` file with the given below lines
