@@ -573,8 +573,6 @@ Hardhat is an Ethereum development environment and framework designed for full s
         process.exit(1);
     });
 
-    }
-
     // Call the main function and catch if there is any error
     main()
         .then(() => process.exit(0))
