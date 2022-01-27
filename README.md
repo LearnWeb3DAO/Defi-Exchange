@@ -557,12 +557,12 @@ Hardhat is an Ethereum development environment and framework designed for full s
     const exchangeContract = await ethers.getContractFactory("Exchange");
 
     // here we deploy the contract
-    const deployedExhangeContract = await exchangeContract.deploy(
+    const deployedExchangeContract = await exchangeContract.deploy(
         cryptoDevTokenAddress
     );
 
     // print the address of the deployed contract
-    console.log("Exchange Contract Address:", deployedExhangeContract.address);
+    console.log("Exchange Contract Address:", deployedExchangeContract.address);
     }
 
     // Call the main function and catch if there is any error
