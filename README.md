@@ -133,7 +133,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - To ensure this, we maintain a ratio which has to remain constant
     - Ratio is `(cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract)`
     - This ratio decides how much `Crypto Dev` tokens user can supply given a certain amount of Eth
-    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquiidty he has supplied to the contract
+    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquidity he has supplied to the contract
     - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
     - In the inital liquidity case,when there is no liquidity. The amount of `LP` tokens that would be minted to the user is equal to the ethBalance of the contract(because balance is equal to the Eth sent by the user in the `addLiquidity` call)
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted are based on a ratio.
@@ -863,8 +863,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - `addLiquidity` is used to call the `addLiquidity` function in the contract to add liquidity
     - It also get the `Crypto Dev` tokens approved for the contract by the user. The reason why `Crypto Dev` tokens need approval is because they are an ERC20 token. For the contract to withdraw an ERC20 from a user's account, he needs the approval from the user's account
     - `calculateCD` tells you for a given amount of `Eth`, how many `Crypto Dev` tokens can be added to the `liquidity`
-    - We calculate this by maintaining a ratio, The ratio we follow is `(Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)`
-    - So by maths we get `(Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)`
+    - We calculate this by maintaining a ratio, The ratio we follow is `(Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reserve in the contract)`
+    - So by maths we get `(Amount of Crypto Dev tokens to be added) = (Ether that would be added crypto Dev tokens balance)/ (Eth reserve in the contract)`
     - The ratio is needed so that adding liquidity doesnt largely impact the price
     - Note `tx.wait()` means we are waiting for the transaction to get mined
 
