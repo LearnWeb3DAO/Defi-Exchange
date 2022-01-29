@@ -76,7 +76,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
       // SPDX-License-Identifier: MIT
       pragma solidity ^0.8.4;
 
-      import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+      import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
       contract Exchange is ERC20 {
       }
@@ -545,10 +545,10 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
   ```js
   const { ethers } = require("hardhat");
-    require("dotenv").config({ path: ".env" });
-    const { CRYPTO_DEV_TOKEN_CONTRACT_ADDRESS } = require("../constants");
+  require("dotenv").config({ path: ".env" });
+  const { CRYPTO_DEV_TOKEN_CONTRACT_ADDRESS } = require("../constants");
 
-    async function main() {
+  async function main() {
     const cryptoDevTokenAddress = CRYPTO_DEV_TOKEN_CONTRACT_ADDRESS;
     /*
     A ContractFactory in ethers.js is an abstraction used to deploy new smart contracts,
@@ -563,25 +563,18 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
     // print the address of the deployed contract
     console.log("Exchange Contract Address:", deployedExhangeContract.address);
-    }
+  }
 
     // Call the main function and catch if there is any error
-    main()
+  main()
     .then(() => process.exit(0))
     .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
-
+      console.error(error);
+      process.exit(1);
     }
+  );
 
-    // Call the main function and catch if there is any error
-    main()
-        .then(() => process.exit(0))
-        .catch((error) => {
-        console.error(error);
-        process.exit(1);
-        });
+
   ```
 
 - Now open the hardhat.config.js file, we would add the `rinkeby` network here so that we can deploy our contract to rinkeby. Replace all the lines in the `hardhart.config.js` file with the given below lines
