@@ -557,24 +557,22 @@ Hardhat is an Ethereum development environment and framework designed for full s
     const exchangeContract = await ethers.getContractFactory("Exchange");
 
     // here we deploy the contract
-    const deployedExhangeContract = await exchangeContract.deploy(
-        cryptoDevTokenAddress
+    const deployedExchangeContract = await exchangeContract.deploy(
+      cryptoDevTokenAddress
     );
+    await deployedExchangeContract.deployed();
 
     // print the address of the deployed contract
-    console.log("Exchange Contract Address:", deployedExhangeContract.address);
+    console.log("Exchange Contract Address:", deployedExchangeContract.address);
   }
 
-    // Call the main function and catch if there is any error
+  // Call the main function and catch if there is any error
   main()
     .then(() => process.exit(0))
     .catch((error) => {
       console.error(error);
       process.exit(1);
-    }
-  );
-
-
+    });
   ```
 
 - Now open the hardhat.config.js file, we would add the `rinkeby` network here so that we can deploy our contract to rinkeby. Replace all the lines in the `hardhart.config.js` file with the given below lines
@@ -597,12 +595,13 @@ Hardhat is an Ethereum development environment and framework designed for full s
     },
   };
   ```
-  
+
 - Compile the contract, open up a terminal pointing at `hardhat-tutorial` directory and execute this command
 
   ```bash
   npx hardhat compile
   ```
+
 - To deploy, open up a terminal pointing at`hardhat-tutorial` directory and execute this command
   ```bash
    npx hardhat run scripts/deploy.js --network rinkeby
@@ -1196,9 +1195,8 @@ export default function Home() {
   // Amount that the user wants to swap
   const [swapAmount, setSwapAmount] = useState("");
   // This keeps track of the number of tokens that the user would recieve after a swap completes
-  const [tokenToBeRecievedAfterSwap, setTokenToBeRecievedAfterSwap] = useState(
-    zero
-  );
+  const [tokenToBeRecievedAfterSwap, setTokenToBeRecievedAfterSwap] =
+    useState(zero);
   // Keeps track of whether  `Eth` or `Crypto Dev` token is selected. If `Eth` is selected it means that the user
   // wants to swap some `Eth` for some `Crypto Dev` tokens and vice versa if `Eth` is not selected
   const [ethSelected, setEthSelected] = useState(true);
