@@ -194,7 +194,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     }
     ```
 
-  - Now lets a function for `removing liquidity` from the contract.
+  - Now lets create a function for `removing liquidity` from the contract.
 
     - The amount of ether that would be sent back to the user would be based on a ratio
     - Ratio is `Eth sent back to the user/ Current Eth reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens`
