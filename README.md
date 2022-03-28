@@ -840,7 +840,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
   /**
    * getReserveOfCDTokens: Retrieves the amount of CD tokens in the
-   * exchange contarct address
+   * exchange contract address
    */
   export const getReserveOfCDTokens = async (provider) => {
     try {
@@ -864,8 +864,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - `addLiquidity` is used to call the `addLiquidity` function in the contract to add liquidity
     - It also get the `Crypto Dev` tokens approved for the contract by the user. The reason why `Crypto Dev` tokens need approval is because they are an ERC20 token. For the contract to withdraw an ERC20 from a user's account, he needs the approval from the user's account
     - `calculateCD` tells you for a given amount of `Eth`, how many `Crypto Dev` tokens can be added to the `liquidity`
-    - We calculate this by maintaining a ratio, The ratio we follow is `(Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)`
-    - So by maths we get `(Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)`
+    - We calculate this by maintaining a ratio, The ratio we follow is `(Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reserve in the contract)`
+    - So by maths we get `(Amount of Crypto Dev tokens to be added) = (Ether that would be added * crypto Dev tokens balance)/ (Eth reserve in the contract)`
     - The ratio is needed so that adding liquidity doesnt largely impact the price
     - Note `tx.wait()` means we are waiting for the transaction to get mined
 
@@ -933,10 +933,10 @@ Hardhat is an Ethereum development environment and framework designed for full s
       // We do that using the `parseEther` function from `ethers.js`
       const _addEtherAmountWei = utils.parseEther(_addEther);
       // Ratio needs to be maintained when we add liquiidty.
-      // We need to let the user know who a specific amount of ether how many `CD` tokens
+      // We need to let the user know a specific amount of ether how many `CD` tokens
       // he can add so that the price impact is not large
-      // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)
-      // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)
+      // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reserve in the contract)
+      // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reserve in the contract)
       const cryptoDevTokenAmount = _addEtherAmountWei
         .mul(cdTokenReserve)
         .div(etherBalanceContract);
