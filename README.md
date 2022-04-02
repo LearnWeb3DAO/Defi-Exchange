@@ -91,8 +91,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
       ```go
       // SPDX-License-Identifier: MIT
-
       pragma solidity ^0.8.4;
+
       import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
       contract Exchange is ERC20 {
@@ -112,12 +112,12 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
     - Eth reserve as we all know would be equal to the balance of the contract and can be found using `address(this).balance` so lets just create a function only for getting reserves of the `Crypto Dev` tokens
     - We know that the `Crypto Dev Token` contract that we deployed is an ERC20
-    - so we can just call the `balanceOf` to check the balance of `CryptoDev Tokens`
+    - So we can just call the `balanceOf` to check the balance of `CryptoDev Tokens`
       that the contract `address` holds
 
       ```go
       /**
-      *  @dev Returns the amount of `Crypto Dev Tokens` held by the contract
+      * @dev Returns the amount of `Crypto Dev Tokens` held by the contract
       */
       function getReserve() public view returns (uint) {
           return ERC20(cryptoDevTokenAddress).balanceOf(address(this));
@@ -126,21 +126,21 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
   - Time to create an `addLiquidity` function which would add `liquidity` in the form of `Ether` and `Crypto Dev tokens` to our contract
 
-    - If `cryptoDevTokenReserve` is zero it means that it is the first time someone is adding `Crypto Dev`tokens and `Ether` to the contract
+    - If `cryptoDevTokenReserve` is zero it means that it is the first time someone is adding `Crypto Dev` tokens and `Ether` to the contract
     - When the user is adding initial liquidity we dont have to maintain any ratio because
       we dont have any liquidity. So we accept any amount of tokens that user has sent with the initial call
-    - if `cryptoDevTokenReserve` is not zero, then we have to make sure that when someone adds the liquidity it doesnt impact the price which the market currently has
+    - If `cryptoDevTokenReserve` is not zero, then we have to make sure that when someone adds the liquidity it doesnt impact the price which the market currently has
     - To ensure this, we maintain a ratio which has to remain constant
     - Ratio is `(cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract)`
     - This ratio decides how much `Crypto Dev` tokens user can supply given a certain amount of Eth
     - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquiidty he has supplied to the contract
     - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
-    - In the inital liquidity case,when there is no liquidity. The amount of `LP` tokens that would be minted to the user is equal to the ethBalance of the contract(because balance is equal to the Eth sent by the user in the `addLiquidity` call)
-    - When there is already liquidity in the contract, the amount of `LP` tokens that get minted are based on a ratio.
-    - The ratio is `(LP tokens to be sent to the user(liquidity) / totalSupply of LP tokens in contract) = (eth sent by the user) / (eth reserve in the contract)`
+    - In the inital liquidity case, when there is no liquidity: The amount of `LP` tokens that would be minted to the user is equal to the `Eth` balance of the contract (because balance is equal to the `Eth` sent by the user in the `addLiquidity` call)
+    - When there is already liquidity in the contract, the amount of `LP` tokens that get minted is based on a ratio.
+    - The ratio is `(LP tokens to be sent to the user (liquidity) / totalSupply of LP tokens in contract) = (Eth sent by the user) / (Eth reserve in the contract)`
 
     ```go
-        /**
+    /**
     * @dev Adds liquidity to the exchange.
     */
     function addLiquidity(uint _amount) public payable returns (uint) {
@@ -159,8 +159,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // `liquidity` provided is equal to `ethBalance` because this is the first time user
             // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
             // by the user in the current `addLiquidity` call
-            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call should always be propotional
-            // to the eth specified by the user
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call should always be proportional
+            // to the Eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
             // _mint is ERC20.sol smart contract function to mint ERC20 tokens
@@ -185,8 +185,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
             // ether added by the user
             // Ratio here to be maintained is ->
-            // (LP tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
-            // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
+            // (LP tokens to be sent to the user (liquidity)/ totalSupply of LP tokens in contract) = (Eth sent by the user)/(Eth reserve in the contract)
+            // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (Eth sent by the user))/(Eth reserve in the contract)
             liquidity = (totalSupply() * msg.value)/ ethReserve;
             _mint(msg.sender, liquidity);
         }
@@ -197,14 +197,14 @@ Hardhat is an Ethereum development environment and framework designed for full s
   - Now lets create a function for `removing liquidity` from the contract.
 
     - The amount of ether that would be sent back to the user would be based on a ratio
-    - Ratio is `Eth sent back to the user/ Current Eth reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens`
+    - Ratio is `(Eth sent back to the user) / (current Eth reserve) = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)`
     - The amount of Crypto Dev tokens that would be sent back to the user would also be based on a ratio
-    - Ratio is `(Crypto Dev sent back to the user/ Current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens)`
-    - The `amount` of `LP` tokens that user would use to remove liquidity would be burnt
+    - Ratio is `(Crypto Dev sent back to the user) / (current Crypto Dev token reserve) = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)`
+    - The amount of `LP` tokens that user would use to remove liquidity would be burnt
 
       ```go
-      /**
-      @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+      /** 
+      * @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
       * in the swap
       */
       function removeLiquidity(uint _amount) public returns (uint , uint) {
@@ -213,80 +213,78 @@ Hardhat is an Ethereum development environment and framework designed for full s
           uint _totalSupply = totalSupply();
           // The amount of Eth that would be sent back to the user is based
           // on a ratio
-          // Ratio is -> (Eth sent back to the user/ Current Eth reserve)
-          // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
+          // Ratio is -> (Eth sent back to the user) / (current Eth reserve)
+          // = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
           // Then by some maths -> (Eth sent back to the user)
-          // = (Current Eth reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+          // = (current Eth reserve * amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
           uint ethAmount = (ethReserve * _amount)/ _totalSupply;
           // The amount of Crypto Dev token that would be sent back to the user is based
           // on a ratio
-          // Ratio is -> (Crypto Dev sent back to the user/ Current Crypto Dev token reserve)
-          // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
-          // Then by some maths -> (Crypto Dev sent back to the user/)
-          // = (Current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+          // Ratio is -> (Crypto Dev sent back to the user) / (current Crypto Dev token reserve)
+          // = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
+          // Then by some maths -> (Crypto Dev sent back to the user)
+          // = (current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
           uint cryptoDevTokenAmount = (getReserve() * _amount)/ _totalSupply;
-          // Burn the sent `LP` tokens from the user'a wallet because they are already sent to
+          // Burn the sent LP tokens from the user's wallet because they are already sent to
           // remove liquidity
           _burn(msg.sender, _amount);
           // Transfer `ethAmount` of Eth from user's wallet to the contract
           payable(msg.sender).transfer(ethAmount);
-          // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract
+          // Transfer `cryptoDevTokenAmount` of Crypto Dev tokens from the user's wallet to the contract
           ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
           return (ethAmount, cryptoDevTokenAmount);
       }
       ```
 
     - Next lets implement the swap functionality
-    - Swap would go two ways one way would be `Ether` to `Crypto Dev` tokens and other would be `Crypto Dev` to `Ether`
-    - Its important for us to determine given `x` amount of Ether/Crypto Dev token sent by the user how many Ether/Crypto Dev token would he recieve from the swap
-    - So lets create a function which calculates this:
+    - Swap would go two ways. One way would be `Eth` to `Crypto Dev` tokens and other would be `Crypto Dev` to `Eth`
+    - Its important for us to determine: Given `x` amount of `Eth`/`Crypto Dev` token sent by the user, how many `Eth`/`Crypto Dev` tokens would he receive from the swap?
+    - So let's create a function which calculates this:
 
-      - We will charge `1%` this means the amount of input tokens with fees would equal
-      - `Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100`
+      - We will charge `1%`. This means the amount of input tokens with fees would equal `Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100`
       - We need to follow the concept of `XY = K` curve
-      - We need to make sure `(x +Δx)*(y - Δy) = (x)*(y)`,so the final formulae is `Δy = (y*Δx)/(x + Δx)`;
-      - Δy in our case is `tokens to be recieved`, Δx = `((input amount)*99)/100, x = inputReserve`, y = `outputReserve`
-      - InputReserve and OuputReserve would depend on which swap we are implementing
-        `Eth` to `Crypto Dev` token or vice versa
+      - We need to make sure `(x + Δx) * (y - Δy) = x * y`, so the final formula is `Δy = (y * Δx) / (x + Δx)`;
+      - `Δy` in our case is `tokens to be received`, `Δx = ((input amount)*99)/100`, `x` = Input Reserve, `y` = Output Reserve
+      - Input Reserve and Ouput Reserve would depend on which swap we are implementing. `Eth` to `Crypto Dev` token or vice versa
 
         ```go
-           /**
-            @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
-            * in the swap
-            */
-            function getAmountOfTokens(
-                uint256 inputAmount,
-                uint256 inputReserve,
-                uint256 outputReserve
-            ) public pure returns (uint256) {
-                require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
-                // We are charging a fees of `1%`
-                // Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
-                uint256 inputAmountWithFee = inputAmount * 99;
-                // Because we need to follow the concept of `XY = K` curve
-                // We need to make sure (x + Δx)*(y - Δy) = (x)*(y)
-                // so the final formulae is Δy = (y*Δx)/(x + Δx);
-                // Δy in our case is `tokens to be recieved`
-                // Δx = ((input amount)*99)/100, x = inputReserve, y = outputReserve
-                // So by putting the values in the formulae you can get the numerator and denominator
-                uint256 numerator = inputAmountWithFee * outputReserve;
-                uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
-                return numerator / denominator;
-            }
+        /**
+        * @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+        * in the swap
+        */
+        function getAmountOfTokens(
+            uint256 inputAmount,
+            uint256 inputReserve,
+            uint256 outputReserve
+        ) public pure returns (uint256) {
+            require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
+            // We are charging a fee of `1%`
+            // Input amount with fee = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
+            uint256 inputAmountWithFee = inputAmount * 99;
+            // Because we need to follow the concept of `XY = K` curve
+            // We need to make sure (x + Δx) * (y - Δy) = x * y
+            // So the final formula is Δy = (y * Δx) / (x + Δx)
+            // Δy in our case is `tokens to be received`
+            // Δx = ((input amount)*99)/100, x = inputReserve, y = outputReserve
+            // So by putting the values in the formulae you can get the numerator and denominator
+            uint256 numerator = inputAmountWithFee * outputReserve;
+            uint256 denominator = (inputReserve * 100) + inputAmountWithFee;
+            return numerator / denominator;
+        }
         ```
 
         - Now lets implement a function to swap `Ether` for `Crypto Dev` tokens
 
         ```go
-            /**
-             @dev Swaps Ether for CryptoDev Tokens
-            */
-            function ethToCryptoDevToken(uint _minTokens) public payable {
+        /** 
+        * @dev Swaps Eth for CryptoDev Tokens
+        */
+        function ethToCryptoDevToken(uint _minTokens) public payable {
             uint256 tokenReserve = getReserve();
-            // call the `getAmountOfTokens` to get the amount of crypto dev tokens
+            // call the `getAmountOfTokens` to get the amount of Crypto Dev tokens
             // that would be returned to the user after the swap
-            // Notice that the `inputReserve` we are sending is equal to
-            //  `address(this).balance - msg.value` instead of just `address(this).balance`
+            // Notice that the `inputReserve` we are sending is equal to  
+            // `address(this).balance - msg.value` instead of just `address(this).balance`
             // because `address(this).balance` already contains the `msg.value` user has sent in the given call
             // so we need to subtract it to get the actual input reserve
             uint256 tokensBought = getAmountOfTokens(
@@ -298,44 +296,45 @@ Hardhat is an Ethereum development environment and framework designed for full s
             require(tokensBought >= _minTokens, "insufficient output amount");
             // Transfer the `Crypto Dev` tokens to the user
             ERC20(cryptoDevTokenAddress).transfer(msg.sender, tokensBought);
-            }
+        }
         ```
 
         - Now lets implement a function to swap `Crypto Dev` tokens to `Ether`
 
         ```go
-            /**
-            @dev Swaps CryptoDev Tokens for Ether
-            */
-            function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
+        /** 
+        * @dev Swaps CryptoDev Tokens for Eth
+        */
+        function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
             uint256 tokenReserve = getReserve();
-                // call the `getAmountOfTokens` to get the amount of ether
-                // that would be returned to the user after the swap
-                uint256 ethBought = getAmountOfTokens(
-                    _tokensSold,
-                    tokenReserve,
-                    address(this).balance
-                );
-                require(ethBought >= _minEth, "insufficient output amount");
-                // Transfer `Crypto Dev` tokens from the user's address to the contract
-                ERC20(cryptoDevTokenAddress).transferFrom(
-                    msg.sender,
-                    address(this),
-                    _tokensSold
-                );
-                // send the `ethBought` to the user from the contract
-                payable(msg.sender).transfer(ethBought);
-            }
+            // call the `getAmountOfTokens` to get the amount of Eth
+            // that would be returned to the user after the swap
+            uint256 ethBought = getAmountOfTokens(
+                _tokensSold,
+                tokenReserve,
+                address(this).balance
+            );
+            require(ethBought >= _minEth, "insufficient output amount");
+            // Transfer `Crypto Dev` tokens from the user's address to the contract
+            ERC20(cryptoDevTokenAddress).transferFrom(
+                msg.sender,
+                address(this),
+                _tokensSold
+            );
+            // send the `ethBought` to the user from the contract
+            payable(msg.sender).transfer(ethBought);
+        }
         ```
 
 - Your final contract should look like this:
 
 ```go
-  // SPDX-License-Identifier: MIT
-  pragma solidity ^0.8.4;
-  import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-  contract Exchange is ERC20 {
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract Exchange is ERC20 {
 
     address public cryptoDevTokenAddress;
 
@@ -345,8 +344,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
         cryptoDevTokenAddress = _CryptoDevtoken;
     }
 
-    /**
-    *  @dev Returns the amount of `Crypto Dev Tokens` held by the contract
+    /** 
+    * @dev Returns the amount of `Crypto Dev Tokens` held by the contract
     */
     function getReserve() public view returns (uint) {
         return ERC20(cryptoDevTokenAddress).balanceOf(address(this));
@@ -360,24 +359,24 @@ Hardhat is an Ethereum development environment and framework designed for full s
         uint ethBalance = address(this).balance;
         uint cryptoDevTokenReserve = getReserve();
         ERC20 cryptoDevToken = ERC20(cryptoDevTokenAddress);
-        /*
-            If the reserve is empty, intake any user supplied value for
+        /* 
+            If the reserve is empty, intake any user supplied value for 
             `Ether` and `Crypto Dev` tokens because there is no ratio currently
         */
         if(cryptoDevTokenReserve == 0) {
             // Transfer the `cryptoDevToken` address from the user's account to the contract
             cryptoDevToken.transferFrom(msg.sender, address(this), _amount);
             // Take the current ethBalance and mint `ethBalance` amount of LP tokens to the user.
-            // `liquidity` provided is equal to `ethBalance` because this is the first time user
-            // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied
+            // `liquidity` provided is equal to `ethBalance` because this is the first time user 
+            // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied 
             // by the user in the current `addLiquidity` call
-            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be propotional
-            // to the eth specified by the user
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be proportional
+            // to the Eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
         } else {
-            /*
-                If the reserve is not empty, intake any user supplied value for
+            /* 
+                If the reserve is not empty, intake any user supplied value for 
                 `Ether` and determine according to the ratio how many `Crypto Dev` tokens
                 need to be supplied to prevent any large price impacts because of the additional
                 liquidity
@@ -386,7 +385,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // in the current `addLiquidity` call
             uint ethReserve =  ethBalance - msg.value;
             // Ratio should always be maintained so that there are no major price impacts when adding liquidity
-            // Ratio here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
+            // Ration here is -> (cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract);
             // So doing some maths, (cryptoDevTokenAmount user can add) = (Eth Sent by the user * cryptoDevTokenReserve /Eth Reserve);
             uint cryptoDevTokenAmount = (msg.value * cryptoDevTokenReserve)/(ethReserve);
             require(_amount >= cryptoDevTokenAmount, "Amount of tokens sent is less than the minimum tokens required");
@@ -395,64 +394,64 @@ Hardhat is an Ethereum development environment and framework designed for full s
             cryptoDevToken.transferFrom(msg.sender, address(this), cryptoDevTokenAmount);
             // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
             // ether added by the user
-            // Ratio here to be maintained is ->
-            // (lp tokens to be sent to the user(liquidity)/ totalSupply of LP tokens in contract) = (eth sent by the user)/(eth reserve in the contract)
-            // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (eth sent by the user))/(eth reserve in the contract)
+            // Ratio here to be maintained is -> 
+            // (lp tokens to be sent to the user (liquidity)/ totalSupply of LP tokens in contract) = (Eth sent by the user)/(Eth reserve in the contract)
+            // by some maths -> liquidity =  (totalSupply of LP tokens in contract * (Eth sent by the user))/(Eth reserve in the contract)
             liquidity = (totalSupply() * msg.value)/ ethReserve;
             _mint(msg.sender, liquidity);
         }
          return liquidity;
     }
 
-    /**
-        @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
-        * in the swap
+    /** 
+    * @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+    * in the swap
     */
     function removeLiquidity(uint _amount) public returns (uint , uint) {
         require(_amount > 0, "_amount should be greater than zero");
         uint ethReserve = address(this).balance;
         uint _totalSupply = totalSupply();
         // The amount of Eth that would be sent back to the user is based
-        // on a ratio
-        // Ratio is -> (Eth sent back to the user/ Current Eth reserve)
-        // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
-        // Then by some maths -> (Eth sent back to the user)
-        // = (Current Eth reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+        // on a ratio 
+        // Ratio is -> (Eth sent back to the user/ Current Eth reserve)  
+        // = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
+        // Then by some maths -> (Eth sent back to the user) 
+        // = (current Eth reserve * amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
         uint ethAmount = (ethReserve * _amount)/ _totalSupply;
         // The amount of Crypto Dev token that would be sent back to the user is based
-        // on a ratio
-        // Ratio is -> (Crypto Dev sent back to the user/ Current Crypto Dev token reserve)
-        // = (amount of LP tokens that user wants to withdraw)/ Total supply of `LP` tokens
-        // Then by some maths -> (Crypto Dev sent back to the user/)
-        // = (Current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw)/Total supply of `LP` tokens
+        // on a ratio 
+        // Ratio is -> (Crypto Dev sent back to the user) / (current Crypto Dev token reserve)
+        // = (amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
+        // Then by some maths -> (Crypto Dev sent back to the user) 
+        // = (current Crypto Dev token reserve * amount of LP tokens that user wants to withdraw) / (total supply of LP tokens)
         uint cryptoDevTokenAmount = (getReserve() * _amount)/ _totalSupply;
-        // Burn the sent `LP` tokens from the user'a wallet because they are already sent to
+        // Burn the sent `LP` tokens from the user's wallet because they are already sent to 
         // remove liquidity
         _burn(msg.sender, _amount);
         // Transfer `ethAmount` of Eth from user's wallet to the contract
         payable(msg.sender).transfer(ethAmount);
-        // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract
+        // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract 
         ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
         return (ethAmount, cryptoDevTokenAmount);
     }
 
-    /**
-    @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
+    /** 
+    * @dev Returns the amount Eth/Crypto Dev tokens that would be returned to the user
     * in the swap
     */
-     function getAmountOfTokens(
+    function getAmountOfTokens(
         uint256 inputAmount,
         uint256 inputReserve,
         uint256 outputReserve
     ) public pure returns (uint256) {
         require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
-        // We are charging a fees of `1%`
-        // Input amount with fees = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
+        // We are charging a fee of `1%`
+        // Input amount with fee = (input amount - (1*(input amount)/100)) = ((input amount)*99)/100
         uint256 inputAmountWithFee = inputAmount * 99;
         // Because we need to follow the concept of `XY = K` curve
-        // We need to make sure (x + Δx)*(y - Δy) = (x)*(y)
-        // so the final formulae is Δy = (y*Δx)/(x + Δx);
-        // Δy in our case is `tokens to be recieved`
+        // We need to make sure (x + Δx) * (y - Δy) = x * y
+        // So the final formula is Δy = (y * Δx) / (x + Δx)
+        // Δy in our case is `tokens to be received`
         // Δx = ((input amount)*99)/100, x = inputReserve, y = outputReserve
         // So by putting the values in the formulae you can get the numerator and denominator
         uint256 numerator = inputAmountWithFee * outputReserve;
@@ -460,15 +459,15 @@ Hardhat is an Ethereum development environment and framework designed for full s
         return numerator / denominator;
     }
 
-    /**
-    @dev Swaps Ether for CryptoDev Tokens
+    /** 
+    * @dev Swaps Eth for CryptoDev Tokens
     */
     function ethToCryptoDevToken(uint _minTokens) public payable {
         uint256 tokenReserve = getReserve();
-        // call the `getAmountOfTokens` to get the amount of crypto dev tokens
+        // call the `getAmountOfTokens` to get the amount of Crypto Dev tokens
         // that would be returned to the user after the swap
-        // Notice that the `inputReserve` we are sending is equal to
-        //  `address(this).balance - msg.value` instead of just `address(this).balance`
+        // Notice that the `inputReserve` we are sending is equal to  
+        // `address(this).balance - msg.value` instead of just `address(this).balance`
         // because `address(this).balance` already contains the `msg.value` user has sent in the given call
         // so we need to subtract it to get the actual input reserve
         uint256 tokensBought = getAmountOfTokens(
@@ -483,12 +482,12 @@ Hardhat is an Ethereum development environment and framework designed for full s
     }
 
 
-    /**
-    @dev Swaps CryptoDev Tokens for Ether
+    /** 
+    * @dev Swaps CryptoDev Tokens for Eth
     */
     function cryptoDevTokenToEth(uint _tokensSold, uint _minEth) public {
-       uint256 tokenReserve = getReserve();
-        // call the `getAmountOfTokens` to get the amount of ether
+        uint256 tokenReserve = getReserve();
+        // call the `getAmountOfTokens` to get the amount of Eth
         // that would be returned to the user after the swap
         uint256 ethBought = getAmountOfTokens(
             _tokensSold,
@@ -505,19 +504,18 @@ Hardhat is an Ethereum development environment and framework designed for full s
         // send the `ethBought` to the user from the contract
         payable(msg.sender).transfer(ethBought);
     }
-  }
+}
 ```
 
-- Now we would install `dotenv` package to be able to import the env file and use it in our config. Open up a terminal pointing at`hardhat-tutorial` directory and execute this command
+- Now we would install `dotenv` package to be able to import the env file and use it in our config. Open up a terminal pointing at `hardhat-tutorial` directory and execute this command
 
   ```bash
   npm install dotenv
   ```
 
-- Now create a `.env` file in the `hardhat-tutorial` folder and add the following lines, use the instructions in the comments to get your Alchemy API Key URL and RINKEBY Private Key. Make sure that the account from which you get your rinkeby private key is funded with Rinkeby Ether.
+- Now create a `.env` file in the `hardhat-tutorial` folder and add the following lines, use the instructions in the comments to get your Alchemy API Key URL and Rinkeby Private Key. Make sure that the account from which you get your Rinkeby private key is funded with Rinkeby Ether.
 
   ```bash
-
   // Go to https://www.alchemyapi.io, sign up, create
   // a new App in its dashboard and select the network as Rinkeby, and replace "add-the-alchemy-key-url-here" with its key url
   ALCHEMY_API_KEY_URL="add-the-alchemy-key-url-here"
@@ -539,7 +537,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
   module.exports = { CRYPTO_DEV_TOKEN_CONTRACT_ADDRESS };
   ```
 
-- Lets deploy the contract to `rinkeby` network.Create a new file named `deploy.js` under the `scripts` folder
+- Lets deploy the contract to `rinkeby` network. Create a new file named `deploy.js` under the `scripts` folder
 
 - Now we would write some code to deploy the contract in `deploy.js` file.
 
@@ -606,7 +604,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
   ```bash
    npx hardhat run scripts/deploy.js --network rinkeby
   ```
-- Save the Exchange Contract Address that was printed on your terminal in your notepad, you would need it futher down in the tutorial.
+- Save the Exchange Contract Address that was printed on your terminal in your notepad, you would need it further down in the tutorial.
 
 ### Website
 
@@ -751,8 +749,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
 - Now lets create a constants folder to keep track of any constants we might have. Create a `constants` folder under `my-app` folder and inside the `constants` folder create a file names index.js
 - Paste the following code.
 
-  - Replace `ABI-CRYPTO-DEV-TOKEN-CONTRACT` with the `abi` of the crypto dev token contract that you depoyed in the `ICO` tutorial.
-  - Replace `ADDRESS-OF-CRYPTO-DEV-TOKEN-CONTRACT` with the address of the crypto dev token contract that you deployed in the ICO tutorial
+  - Replace `ABI-CRYPTO-DEV-TOKEN-CONTRACT` with the abi of the `Crypto Dev` token contract that you deployed in the ICO tutorial.
+  - Replace `ADDRESS-OF-CRYPTO-DEV-TOKEN-CONTRACT` with the address of the `Crypto Dev` token contract that you deployed in the ICO tutorial
   - Replace `ABI-EXCHANGE-CONTRACT` with the abi of the Exchange Contract. To get the abi for your contract, go to your `hardhat-tutorial/artifacts/contracts/Exchange.sol` folder and from your `Exchange.json` file get the array marked under the `"abi"` key.
   - Replace `ADDRESS-EXCHANGE-CONTRACT` with the address of the exchange contract that you deployed above and saved to your notepad
 
@@ -764,7 +762,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     export const EXCHANGE_CONTRACT_ADDRESS = "ADDRESS-EXCHANGE-CONTRACT";
     ```
 
-- Now we would create some utility files which would help us to better interact with the contract.Create a `utils` folder inside the `my-app` folder and inside the folder create 4 files: `addLiquidity.js, `removeLiquidity.js`, `getAmounts.js`and `swap.js`
+- Now we would create some utility files which would help us to better interact with the contract. Create a `utils` folder inside the `my-app` folder and inside the folder create 4 files: `addLiquidity.js`, `removeLiquidity.js`, `getAmounts.js`, and `swap.js`
 
 - Lets start by writing some code in `getAmounts.js`. This file is used to retrieve balances and reserves for assets
 
@@ -804,7 +802,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
   /**
    * getCDTokensBalance: Retrieves the Crypto Dev tokens in the account
-   * of the provided `adddress`
+   * of the provided `address`
    */
   export const getCDTokensBalance = async (provider, address) => {
     try {
@@ -840,7 +838,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
   /**
    * getReserveOfCDTokens: Retrieves the amount of CD tokens in the
-   * exchange contarct address
+   * exchange contract address
    */
   export const getReserveOfCDTokens = async (provider) => {
     try {
@@ -862,11 +860,11 @@ Hardhat is an Ethereum development environment and framework designed for full s
   - `addLiquidity.js` has two functions `addLiquidity` and `calculateCD`
 
     - `addLiquidity` is used to call the `addLiquidity` function in the contract to add liquidity
-    - It also get the `Crypto Dev` tokens approved for the contract by the user. The reason why `Crypto Dev` tokens need approval is because they are an ERC20 token. For the contract to withdraw an ERC20 from a user's account, he needs the approval from the user's account
+    - It also gets the `Crypto Dev` tokens approved for the contract by the user. The reason why `Crypto Dev` tokens need approval is because they are an ERC20 token. For the contract to withdraw an ERC20 from a user's account, it needs the approval from the user's account
     - `calculateCD` tells you for a given amount of `Eth`, how many `Crypto Dev` tokens can be added to the `liquidity`
-    - We calculate this by maintaining a ratio, The ratio we follow is `(Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)`
-    - So by maths we get `(Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)`
-    - The ratio is needed so that adding liquidity doesnt largely impact the price
+    - We calculate this by maintaining a ratio. The ratio we follow is `(amount of Crypto Dev tokens to be added) / (Crypto Dev tokens balance) = (Eth that would be added) / (Eth reserve in the contract)`
+    - So by maths we get `(amount of Crypto Dev tokens to be added) = (Eth that would be added * Crypto Dev tokens balance) / (Eth reserve in the contract)`
+    - The ratio is needed so that adding liquidity doesn't largely impact the price
     - Note `tx.wait()` means we are waiting for the transaction to get mined
 
     ```javascript
@@ -881,8 +879,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
     /**
      * addLiquidity helps add liquidity to the exchange,
      * If the user is adding initial liquidity, user decides the ether and CD tokens he wants to add
-     * to the exchange. If we he adding the liquidity after the initial liquidity has already been added
-     * then we calculate the crypto dev tokens he can add, given the eth he wants to add by keeping the ratios
+     * to the exchange. If he is adding the liquidity after the initial liquidity has already been added
+     * then we calculate the Crypto Dev tokens he can add, given the Eth he wants to add by keeping the ratios
      * constant
      */
     export const addLiquidity = async (
@@ -932,11 +930,11 @@ Hardhat is an Ethereum development environment and framework designed for full s
       // `_addEther` is a string, we need to convert it to a Bignumber before we can do our calculations
       // We do that using the `parseEther` function from `ethers.js`
       const _addEtherAmountWei = utils.parseEther(_addEther);
-      // Ratio needs to be maintained when we add liquiidty.
-      // We need to let the user know who a specific amount of ether how many `CD` tokens
+      // Ratio needs to be maintained when we add liquidty.
+      // We need to let the user know for a specific amount of ether how many `CD` tokens
       // he can add so that the price impact is not large
-      // The ratio we follow is (Amount of Crypto Dev tokens to be added)/(Crypto Dev tokens balance) = (Ether that would be added)/ (Eth reseve in the contract)
-      // So by maths we get (Amount of Crypto Dev tokens to be added) = (Ether that would be added*rypto Dev tokens balance)/ (Eth reseve in the contract)
+      // The ratio we follow is (amount of Crypto Dev tokens to be added) / (Crypto Dev tokens balance) = (Eth that would be added) / (Eth reserve in the contract)
+      // So by maths we get (amount of Crypto Dev tokens to be added) = (Eth that would be added * Crypto Dev tokens balance) / (Eth reserve in the contract)
       const cryptoDevTokenAmount = _addEtherAmountWei
         .mul(cdTokenReserve)
         .div(etherBalanceContract);
@@ -946,30 +944,27 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
 - Now add some code to `removeLiquidity.js`
 
-  - We have two functions here one is `removeLiquidity` and other is `getTokensAfterRemove`
+  - We have two functions here: One is `removeLiquidity` and the other is `getTokensAfterRemove`
   - `removeLiquidity` calls the `removeLiquidity` function from the contract,
     to remove the amount of `LP` tokens specified by the user
   - `getTokensAfterRemove` calulates the amount of `Ether` and `CD` tokens
-    that would be sent back to the user after he removes certain amount of `LP`
+    that would be sent back to the user after he removes a certain amount of `LP`
     tokens from the pool
-  - The amount of ether that would be sent back to the user after he withdraws the LP token is calculated based on a ratio,
-  - Ratio is -> `(amount of ether that would be sent back to the user/ Eth reserves) = (LP tokens withdrawn)/(Total supply of LP tokens)`
-  - By some maths we get -> `(amount of ether that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn)/(Total supply of LP tokens)`
-  - Similariy we also maintain a ratio for the `CD` tokens, so here in our case
-  - Ratio is -> `(amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)`
-  - Then `(amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)`
+  - The amount of `Eth` that would be sent back to the user after he withdraws the `LP` token is calculated based on a ratio,
+  - Ratio is -> `(amount of Eth that would be sent back to the user / Eth reserve) = (LP tokens withdrawn) / (total supply of LP tokens)`
+  - By some maths we get -> `(amount of Eth that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn) / (total supply of LP tokens)`
+  - Similarly we also maintain a ratio for the `CD` tokens, so here in our case
+  - Ratio is -> `(amount of CD tokens sent back to the user / CD Token reserve) = (LP tokens withdrawn) / (total supply of LP tokens)`
+  - Then `(amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn) / (total supply of LP tokens)`
 
     ```javascript
     import { Contract, providers, utils, BigNumber } from "ethers";
-    import {
-      EXCHANGE_CONTRACT_ABI,
-      EXCHANGE_CONTRACT_ADDRESS,
-    } from "../constants";
+    import { EXCHANGE_CONTRACT_ABI, EXCHANGE_CONTRACT_ADDRESS } from "../constants";
 
     /**
-     * removeLiquidity: Removes the `removeLPTokensWei` amount of LP tokens from
-     * liquidity and also the calculated amount of `ether` and `CD` tokens
-     */
+    * removeLiquidity: Removes the `removeLPTokensWei` amount of LP tokens from
+    * liquidity and also the calculated amount of `ether` and `CD` tokens
+    */
     export const removeLiquidity = async (signer, removeLPTokensWei) => {
       // Create a new instance of the exchange contract
       const exchangeContract = new Contract(
@@ -982,10 +977,10 @@ Hardhat is an Ethereum development environment and framework designed for full s
     };
 
     /**
-     * getTokensAfterRemove: Calculates the amount of `Ether` and `CD` tokens
-     * that would be returned back to user after he removes `removeLPTokenWei` amount
-     * of LP tokens from the contract
-     */
+    * getTokensAfterRemove: Calculates the amount of `Eth` and `CD` tokens
+    * that would be returned back to user after he removes `removeLPTokenWei` amount
+    * of LP tokens from the contract
+    */
     export const getTokensAfterRemove = async (
       provider,
       removeLPTokenWei,
@@ -1001,17 +996,15 @@ Hardhat is an Ethereum development environment and framework designed for full s
         );
         // Get the total supply of `Crypto Dev` LP tokens
         const _totalSupply = await exchangeContract.totalSupply();
-        // Here we are using the Bignumber methods of multiplication and division
-        // The amount of ether that would be sent back to the user after he withdraws the LP token
-        // id calculated based on a ratio,
-        // Ratio is -> (amount of ether that would be sent back to the user/ Eth reserves) = (LP tokens withdrawn)/(Total supply of LP tokens)
-        // By some maths we get -> (amount of ether that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn)/(Total supply of LP tokens)
-        // Similariy we also maintain a ratio for the `CD` tokens, so here in our case
-        // Ratio is -> (amount of CD tokens sent back to the user/ CD Token reserve) = (LP tokens withdrawn)/(Total supply of LP tokens)
-        // Then (amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn)/(Total supply of LP tokens)
-        const _removeEther = _ethBalance
-          .mul(removeLPTokenWei)
-          .div(_totalSupply);
+        // Here we are using the BigNumber methods of multiplication and division
+        // The amount of Eth that would be sent back to the user after he withdraws the LP token
+        // is calculated based on a ratio,
+        // Ratio is -> (amount of Eth that would be sent back to the user / Eth reserve) = (LP tokens withdrawn) / (total supply of LP tokens)
+        // By some maths we get -> (amount of Eth that would be sent back to the user) = (Eth Reserve * LP tokens withdrawn) / (total supply of LP tokens)
+        // Similarly we also maintain a ratio for the `CD` tokens, so here in our case
+        // Ratio is -> (amount of CD tokens sent back to the user / CD Token reserve) = (LP tokens withdrawn) / (total supply of LP tokens)
+        // Then (amount of CD tokens sent back to the user) = (CD token reserve * LP tokens withdrawn) / (total supply of LP tokens)
+        const _removeEther = _ethBalance.mul(removeLPTokenWei).div(_totalSupply);
         const _removeCD = cryptoDevTokenReserve
           .mul(removeLPTokenWei)
           .div(_totalSupply);
@@ -1025,16 +1018,16 @@ Hardhat is an Ethereum development environment and framework designed for full s
     };
     ```
 
-- Now its time to write code for `swap.js` our last `utils` file
+- Now it's time to write code for `swap.js` our last `utils` file
 
-  - It has two functions `getAmountOfTokenRecievedFromSwap` and `swapTokens`
-  - `swap tokens` swaps certain amount of `Eth/Crypto Dev` tokens with `Eth/Crypto Dev` tokens
-  - If Eth has been selected by the user from the ui, it means that the user has `Eth` and he wants to swap it for certain amount of `Crypto Dev` tokens
-  - In this case we call the `ethToCryptoDevToken` function. Note that `Eth` is sent as a value in the function because user is paying this `Eth` to the contract.`Eth` sent is not a a input param value in this case
-  - On the other hand if Eth is not selected this means that the user wants to swap `Crypto Dev` tokens for `Eth`
+  - It has two functions `getAmountOfTokenReceivedFromSwap` and `swapTokens`
+  - `swapTokens` swaps certain amount of `Eth/Crypto Dev` tokens with `Crypto Dev/Eth` tokens
+  - If `Eth` has been selected by the user from the UI, it means that the user has `Eth` and he wants to swap it for a certain amount of `Crypto Dev` tokens
+  - In this case we call the `ethToCryptoDevToken` function. Note that `Eth` is sent as a value in the function because the user is paying this `Eth` to the contract. `Eth` sent is not an input param value in this case
+  - On the other hand, if `Eth` is not selected this means that the user wants to swap `Crypto Dev` tokens for `Eth`
   - Here we call the `cryptoDevTokenToEth`
-  - `getAmountOfTokensReceivedFromSwap` is a function which calculates that given a certain amount of `Eth/Crypto Dev` tokens, how many `Eth/Crypto Dev` tokens would be sent back to the user
-  - If Eth is selected it calls the `getAmountOfTokens` from the contract which takes in a `input` reserve and an `output` reserve. Here input reserve would be the `ethBalance` of the contract and output reserve would be the `Crypto Dev token` reserve. Opposite would be true, if Eth is not selected
+  - `getAmountOfTokensReceivedFromSwap` is a function which calculates, given a certain amount of `Eth/Crypto Dev` tokens, how many `Eth/Crypto Dev` tokens would be sent back to the user
+  - If `Eth` is selected it calls the `getAmountOfTokens` from the contract which takes in an `input` reserve and an `output` reserve. Here, input reserve would be the `Eth` balance of the contract and output reserve would be the `Crypto Dev` token reserve. Opposite would be true, if `Eth` is not selected
 
     ```javascript
     import { Contract } from "ethers";
@@ -1046,8 +1039,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
     } from "../constants";
 
     /*
-        getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
-        when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
+        getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be received 
+        when the user swaps `_swapAmountWei` amount of Eth/Crypto Dev tokens.
     */
     export const getAmountOfTokensReceivedFromSwap = async (
       _swapAmountWei,
@@ -1063,9 +1056,9 @@ Hardhat is an Ethereum development environment and framework designed for full s
         provider
       );
       let amountOfTokens;
-      // If ETH is selected this means our input value is `Eth` which means our input amount would be
+      // If `Eth` is selected this means our input value is `Eth` which means our input amount would be
       // `_swapAmountWei`, the input reserve would be the `ethBalance` of the contract and output reserve
-      // would be the  `Crypto Dev token` reserve
+      // would be the `Crypto Dev` token reserve
       if (ethSelected) {
         amountOfTokens = await exchangeContract.getAmountOfTokens(
           _swapAmountWei,
@@ -1073,8 +1066,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
           reservedCD
         );
       } else {
-        // If ETH is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
-        // `_swapAmountWei`, the input reserve would be the `Crypto Dev token` reserve of the contract and output reserve
+        // If `Eth` is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
+        // `_swapAmountWei`, the input reserve would be the `Crypto Dev` token reserve of the contract and output reserve
         // would be the `ethBalance`
         amountOfTokens = await exchangeContract.getAmountOfTokens(
           _swapAmountWei,
@@ -1087,12 +1080,12 @@ Hardhat is an Ethereum development environment and framework designed for full s
     };
 
     /*
-      swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
+      swapTokens: Swaps `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeReceivedAfterSwap` amount of Eth/Crypto Dev tokens.
     */
     export const swapTokens = async (
       signer,
       swapAmountWei,
-      tokenToBeRecievedAfterSwap,
+      tokenToBeReceivedAfterSwap,
       ethSelected
     ) => {
       // Create a new instance of the exchange contract
@@ -1110,26 +1103,27 @@ Hardhat is an Ethereum development environment and framework designed for full s
       // If Eth is selected call the `ethToCryptoDevToken` function else
       // call the `cryptoDevTokenToEth` function from the contract
       // As you can see you need to pass the `swapAmount` as a value to the function because
-      // It is the ether we are paying to the contract, instead of a value we are passing to the function
+      // it is the ether we are paying to the contract, instead of a value we are passing to the function
       if (ethSelected) {
         tx = await exchangeContract.ethToCryptoDevToken(
-          tokenToBeRecievedAfterSwap,
+          tokenToBeReceivedAfterSwap,
           {
             value: swapAmountWei,
           }
         );
       } else {
-        // User has to approve `swapAmountWei` for the contract because `Crypto Dev Token`
+        // User has to approve `swapAmountWei` for the contract because `Crypto Dev` token
         // is an ERC20
         tx = await tokenContract.approve(
           EXCHANGE_CONTRACT_ADDRESS,
           swapAmountWei.toString()
         );
         await tx.wait();
-        // call cryptoDebTokenToEth function which would take in `swapAmounWei` of crypto dev tokens and would send back `tokenToBeRecievedAfterSwap` amount of ether to the user
+        // call cryptoDevTokenToEth function which would take in `swapAmountWei` of `Crypto Dev` tokens and would
+        // send back `tokenToBeReceivedAfterSwap` amount of `Eth` to the user
         tx = await exchangeContract.cryptoDevTokenToEth(
           swapAmountWei,
-          tokenToBeRecievedAfterSwap
+          tokenToBeReceivedAfterSwap
         );
       }
       await tx.wait();
@@ -1159,10 +1153,12 @@ import { swapTokens, getAmountOfTokensReceivedFromSwap } from "../utils/swap";
 
 export default function Home() {
   /** General state variables */
-  // loading is set to true when the transaction is mining and set to false when the transaction has mined
+  // loading is set to true when the transaction is mining and set to false when
+  // the transaction has mined
   const [loading, setLoading] = useState(false);
-  // We have two tabs in this dapp, Liquidity Tab and Swap Tab. This variable keeps track of which Tab the user is on
-  // If it is set to true this means that the user is on `liquidity` tab else he is on `swap` tab
+  // We have two tabs in this dapp, Liquidity Tab and Swap Tab. This variable
+  // keeps track of which Tab the user is on. If it is set to true this means
+  // that the user is on `liquidity` tab else he is on `swap` tab
   const [liquidityTab, setLiquidityTab] = useState(true);
   // This variable is the `0` number in form of a BigNumber
   const zero = BigNumber.from(0);
@@ -1186,7 +1182,7 @@ export default function Home() {
   const [addCDTokens, setAddCDTokens] = useState(zero);
   // removeEther is the amount of `Ether` that would be sent back to the user based on a certain number of `LP` tokens
   const [removeEther, setRemoveEther] = useState(zero);
-  // removeCD is the amount of `Crypto Dev` tokens that would be sent back to the user base on a certain number of `LP` tokens
+  // removeCD is the amount of `Crypto Dev` tokens that would be sent back to the user based on a certain number of `LP` tokens
   // that he wants to withdraw
   const [removeCD, setRemoveCD] = useState(zero);
   // amount of LP tokens that the user wants to remove from liquidity
@@ -1194,9 +1190,10 @@ export default function Home() {
   /** Variables to keep track of swap functionality */
   // Amount that the user wants to swap
   const [swapAmount, setSwapAmount] = useState("");
-  // This keeps track of the number of tokens that the user would recieve after a swap completes
-  const [tokenToBeRecievedAfterSwap, setTokenToBeRecievedAfterSwap] =
-    useState(zero);
+  // This keeps track of the number of tokens that the user would receive after a swap completes
+  const [tokenToBeReceivedAfterSwap, settokenToBeReceivedAfterSwap] = useState(
+    zero
+  );
   // Keeps track of whether  `Eth` or `Crypto Dev` token is selected. If `Eth` is selected it means that the user
   // wants to swap some `Eth` for some `Crypto Dev` tokens and vice versa if `Eth` is not selected
   const [ethSelected, setEthSelected] = useState(true);
@@ -1238,9 +1235,9 @@ export default function Home() {
 
   /**** SWAP FUNCTIONS ****/
 
-  /*
-  swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
-*/
+  /**
+   * swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeReceivedAfterSwap` amount of Eth/Crypto Dev tokens.
+   */
   const _swapTokens = async () => {
     try {
       // Convert the amount entered by the user to a BigNumber using the `parseEther` library from `ethers.js`
@@ -1254,7 +1251,7 @@ export default function Home() {
         await swapTokens(
           signer,
           swapAmountWei,
-          tokenToBeRecievedAfterSwap,
+          tokenToBeReceivedAfterSwap,
           ethSelected
         );
         setLoading(false);
@@ -1269,10 +1266,10 @@ export default function Home() {
     }
   };
 
-  /*
-    _getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
-    when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
- */
+  /**
+   * _getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be received 
+   * when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
+   */
   const _getAmountOfTokensReceivedFromSwap = async (_swapAmount) => {
     try {
       // Convert the amount entered by the user to a BigNumber using the `parseEther` library from `ethers.js`
@@ -1291,9 +1288,9 @@ export default function Home() {
           _ethBalance,
           reservedCD
         );
-        setTokenToBeRecievedAfterSwap(amountOfTokens);
+        settokenToBeReceivedAfterSwap(amountOfTokens);
       } else {
-        setTokenToBeRecievedAfterSwap(zero);
+        settokenToBeReceivedAfterSwap(zero);
       }
     } catch (err) {
       console.error(err);
@@ -1307,8 +1304,8 @@ export default function Home() {
   /**
    * _addLiquidity helps add liquidity to the exchange,
    * If the user is adding initial liquidity, user decides the ether and CD tokens he wants to add
-   * to the exchange. If we he adding the liquidity after the initial liquidity has already been added
-   * then we calculate the crypto dev tokens he can add, given the eth he wants to add by keeping the ratios
+   * to the exchange. If he is adding the liquidity after the initial liquidity has already been added
+   * then we calculate the crypto dev tokens he can add, given the Eth he wants to add by keeping the ratios
    * constant
    */
   const _addLiquidity = async () => {
@@ -1394,9 +1391,9 @@ export default function Home() {
 
   /**** END ****/
 
-  /*
-      connectWallet: Connects the MetaMask wallet
-  */
+  /**
+   * connectWallet: Connects the MetaMask wallet
+   */
   const connectWallet = async () => {
     try {
       // Get the provider from web3Modal, which in our case is MetaMask
@@ -1409,16 +1406,20 @@ export default function Home() {
   };
 
   /**
-   * Returns a Provider or Signer object representing the Ethereum RPC with or without the
-   * signing capabilities of metamask attached
+   * Returns a Provider or Signer object representing the Ethereum RPC with or
+   * without the signing capabilities of Metamask attached
    *
-   * A `Provider` is needed to interact with the blockchain - reading transactions, reading balances, reading state, etc.
+   * A `Provider` is needed to interact with the blockchain - reading
+   * transactions, reading balances, reading state, etc.
    *
-   * A `Signer` is a special type of Provider used in case a `write` transaction needs to be made to the blockchain, which involves the connected account
-   * needing to make a digital signature to authorize the transaction being sent. Metamask exposes a Signer API to allow your website to
-   * request signatures from the user using Signer functions.
+   * A `Signer` is a special type of Provider used in case a `write` transaction
+   * needs to be made to the blockchain, which involves the connected account
+   * needing to make a digital signature to authorize the transaction being
+   * sent. Metamask exposes a Signer API to allow your website to request
+   * signatures from the user using Signer functions.
    *
-   * @param {*} needSigner - True if you need the signer, default false otherwise
+   * @param {*} needSigner - True if you need the signer, default false
+   * otherwise
    */
   const getProviderOrSigner = async (needSigner = false) => {
     // Connect to Metamask
@@ -1491,7 +1492,7 @@ export default function Home() {
           </div>
           <div>
             {/* If reserved CD is zero, render the state for liquidity zero where we ask the user
-            who much initial liquidity he wants to add else just render the state where liquidity is not zero and
+            how much initial liquidity he wants to add else just render the state where liquidity is not zero and
             we calculate based on the `Eth` amount specified by the user how much `CD` tokens can be added */}
             {utils.parseEther(reservedCD.toString()).eq(zero) ? (
               <div>
@@ -1549,7 +1550,7 @@ export default function Home() {
                 placeholder="Amount of LP Tokens"
                 onChange={async (e) => {
                   setRemoveLPTokens(e.target.value || "0");
-                  // Calculate the amount of Ether and CD tokens that the user would recieve
+                  // Calculate the amount of Ether and CD tokens that the user would receive
                   // After he removes `e.target.value` amount of `LP` tokens
                   await _getTokensAfterRemove(e.target.value || "0");
                 }}
@@ -1575,7 +1576,7 @@ export default function Home() {
             placeholder="Amount"
             onChange={async (e) => {
               setSwapAmount(e.target.value || "");
-              // Calculate the amount of tokens user would recieve after the swap
+              // Calculate the amount of tokens user would receive after the swap
               await _getAmountOfTokensReceivedFromSwap(e.target.value || "0");
             }}
             className={styles.input}
@@ -1600,10 +1601,10 @@ export default function Home() {
             {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
             {ethSelected
               ? `You will get ${utils.formatEther(
-                  tokenToBeRecievedAfterSwap
+                  tokenToBeReceivedAfterSwap
                 )} Crypto Dev Tokens`
               : `You will get ${utils.formatEther(
-                  tokenToBeRecievedAfterSwap
+                  tokenToBeReceivedAfterSwap
                 )} Eth`}
           </div>
           <button className={styles.button1} onClick={_swapTokens}>
@@ -1618,7 +1619,7 @@ export default function Home() {
     <div>
       <Head>
         <title>Crypto Devs</title>
-        <meta name="description" content="Exchange-Dapp" />
+        <meta name="description" content="Whitelist-Dapp" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={styles.main}>

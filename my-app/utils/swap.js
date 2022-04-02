@@ -7,8 +7,8 @@ import {
 } from "../constants";
 
 /*
-    getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
-    when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
+    getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be received 
+    when the user swaps `_swapAmountWei` amount of Eth/Crypto Dev tokens.
 */
 export const getAmountOfTokensReceivedFromSwap = async (
   _swapAmountWei,
@@ -24,9 +24,9 @@ export const getAmountOfTokensReceivedFromSwap = async (
     provider
   );
   let amountOfTokens;
-  // If ETH is selected this means our input value is `Eth` which means our input amount would be
+  // If `Eth` is selected this means our input value is `Eth` which means our input amount would be
   // `_swapAmountWei`, the input reserve would be the `ethBalance` of the contract and output reserve
-  // would be the  `Crypto Dev token` reserve
+  // would be the `Crypto Dev` token reserve
   if (ethSelected) {
     amountOfTokens = await exchangeContract.getAmountOfTokens(
       _swapAmountWei,
@@ -34,8 +34,8 @@ export const getAmountOfTokensReceivedFromSwap = async (
       reservedCD
     );
   } else {
-    // If ETH is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
-    // `_swapAmountWei`, the input reserve would be the `Crypto Dev token` reserve of the contract and output reserve
+    // If `Eth` is not selected this means our input value is `Crypto Dev` tokens which means our input amount would be
+    // `_swapAmountWei`, the input reserve would be the `Crypto Dev` token reserve of the contract and output reserve
     // would be the `ethBalance`
     amountOfTokens = await exchangeContract.getAmountOfTokens(
       _swapAmountWei,
@@ -48,12 +48,12 @@ export const getAmountOfTokensReceivedFromSwap = async (
 };
 
 /*
-  swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
+  swapTokens: Swaps `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeReceivedAfterSwap` amount of Eth/Crypto Dev tokens.
 */
 export const swapTokens = async (
   signer,
   swapAmountWei,
-  tokenToBeRecievedAfterSwap,
+  tokenToBeReceivedAfterSwap,
   ethSelected
 ) => {
   // Create a new instance of the exchange contract
@@ -71,26 +71,27 @@ export const swapTokens = async (
   // If Eth is selected call the `ethToCryptoDevToken` function else
   // call the `cryptoDevTokenToEth` function from the contract
   // As you can see you need to pass the `swapAmount` as a value to the function because
-  // It is the ether we are paying to the contract, instead of a value we are passing to the function
+  // it is the ether we are paying to the contract, instead of a value we are passing to the function
   if (ethSelected) {
     tx = await exchangeContract.ethToCryptoDevToken(
-      tokenToBeRecievedAfterSwap,
+      tokenToBeReceivedAfterSwap,
       {
         value: swapAmountWei,
       }
     );
   } else {
-    // User has to approve `swapAmountWei` for the contract because `Crypto Dev Token`
+    // User has to approve `swapAmountWei` for the contract because `Crypto Dev` token
     // is an ERC20
     tx = await tokenContract.approve(
       EXCHANGE_CONTRACT_ADDRESS,
       swapAmountWei.toString()
     );
     await tx.wait();
-    // call cryptoDebTokenToEth function which would take in `swapAmounWei` of crypto dev tokens and would send back `tokenToBeRecievedAfterSwap` amount of ether to the user
+    // call cryptoDevTokenToEth function which would take in `swapAmountWei` of `Crypto Dev` tokens and would
+    // send back `tokenToBeReceivedAfterSwap` amount of `Eth` to the user
     tx = await exchangeContract.cryptoDevTokenToEth(
       swapAmountWei,
-      tokenToBeRecievedAfterSwap
+      tokenToBeReceivedAfterSwap
     );
   }
   await tx.wait();
