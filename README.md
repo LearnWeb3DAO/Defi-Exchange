@@ -619,7 +619,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
          - my-app
   ```
 
-- To create this `my-app`, in the terminal point to Whitelist-Dapp folder and type
+- To create this `my-app`, in the terminal point to DeFi-Exchange folder and type
 
   ```bash
     npx create-next-app@latest
