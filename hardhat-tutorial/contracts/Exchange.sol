@@ -6,7 +6,7 @@ contract Exchange is ERC20 {
 
     address public cryptoDevTokenAddress;
 
-    // Exchange is inheriting ERC20, becase our exchange would keep track of Crypto Dev LP tokens
+    // Exchange is inheriting ERC20, because our exchange would keep track of Crypto Dev LP tokens
     constructor(address _CryptoDevtoken) ERC20("CryptoDev LP Token", "CDLP") {
         require(_CryptoDevtoken != address(0), "Token address passed is a null address");
         cryptoDevTokenAddress = _CryptoDevtoken;
