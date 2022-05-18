@@ -99,7 +99,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
 
           address public cryptoDevTokenAddress;
 
-          // Exchange is inheriting ERC20, becase our exchange would keep track of Crypto Dev LP tokens
+          // Exchange is inheriting ERC20, because our exchange would keep track of Crypto Dev LP tokens
           constructor(address _CryptoDevtoken) ERC20("CryptoDev LP Token", "CDLP") {
               require(_CryptoDevtoken != address(0), "Token address passed is a null address");
               cryptoDevTokenAddress = _CryptoDevtoken;
@@ -135,7 +135,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - This ratio decides how much `Crypto Dev` tokens user can supply given a certain amount of Eth
     - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquiidty he has supplied to the contract
     - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
-    - In the inital liquidity case, when there is no liquidity: The amount of `LP` tokens that would be minted to the user is equal to the `Eth` balance of the contract (because balance is equal to the `Eth` sent by the user in the `addLiquidity` call)
+    - In the initial liquidity case, when there is no liquidity: The amount of `LP` tokens that would be minted to the user is equal to the `Eth` balance of the contract (because balance is equal to the `Eth` sent by the user in the `addLiquidity` call)
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted is based on a ratio.
     - The ratio is `(LP tokens to be sent to the user (liquidity) / totalSupply of LP tokens in contract) = (Eth sent by the user) / (Eth reserve in the contract)`
 
@@ -338,7 +338,7 @@ contract Exchange is ERC20 {
 
     address public cryptoDevTokenAddress;
 
-    // Exchange is inheriting ERC20, becase our exchange would keep track of Crypto Dev LP tokens
+    // Exchange is inheriting ERC20, because our exchange would keep track of Crypto Dev LP tokens
     constructor(address _CryptoDevtoken) ERC20("CryptoDev LP Token", "CDLP") {
         require(_CryptoDevtoken != address(0), "Token address passed is a null address");
         cryptoDevTokenAddress = _CryptoDevtoken;
@@ -370,7 +370,7 @@ contract Exchange is ERC20 {
             // `liquidity` provided is equal to `ethBalance` because this is the first time user 
             // is adding `Eth` to the contract, so whatever `Eth` contract has is equal to the one supplied 
             // by the user in the current `addLiquidity` call
-            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call shouls always be proportional
+            // `liquidity` tokens that need to be minted to the user on `addLiquidity` call should always be proportional
             // to the Eth specified by the user
             liquidity = ethBalance;
             _mint(msg.sender, liquidity);
