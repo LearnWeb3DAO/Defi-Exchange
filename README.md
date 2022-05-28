@@ -1632,7 +1632,7 @@ export default function Home() {
             <button
               className={styles.button}
               onClick={() => {
-                setLiquidityTab(!liquidityTab);
+                setLiquidityTab(true);
               }}
             >
               Liquidity
