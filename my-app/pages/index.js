@@ -22,7 +22,7 @@ export default function Home() {
   // the transaction has mined
   const [loading, setLoading] = useState(false);
   // We have two tabs in this dapp, Liquidity Tab and Swap Tab. This variable
-  // keeps track of which Tab the user is on If it is set to true this means
+  // keeps track of which Tab the user is on. If it is set to true this means
   // that the user is on `liquidity` tab else he is on `swap` tab
   const [liquidityTab, setLiquidityTab] = useState(true);
   // This variable is the `0` number in form of a BigNumber
@@ -47,7 +47,7 @@ export default function Home() {
   const [addCDTokens, setAddCDTokens] = useState(zero);
   // removeEther is the amount of `Ether` that would be sent back to the user based on a certain number of `LP` tokens
   const [removeEther, setRemoveEther] = useState(zero);
-  // removeCD is the amount of `Crypto Dev` tokens that would be sent back to the user base on a certain number of `LP` tokens
+  // removeCD is the amount of `Crypto Dev` tokens that would be sent back to the user based on a certain number of `LP` tokens
   // that he wants to withdraw
   const [removeCD, setRemoveCD] = useState(zero);
   // amount of LP tokens that the user wants to remove from liquidity
@@ -55,8 +55,8 @@ export default function Home() {
   /** Variables to keep track of swap functionality */
   // Amount that the user wants to swap
   const [swapAmount, setSwapAmount] = useState("");
-  // This keeps track of the number of tokens that the user would recieve after a swap completes
-  const [tokenToBeRecievedAfterSwap, setTokenToBeRecievedAfterSwap] = useState(
+  // This keeps track of the number of tokens that the user would receive after a swap completes
+  const [tokenToBeReceivedAfterSwap, settokenToBeReceivedAfterSwap] = useState(
     zero
   );
   // Keeps track of whether  `Eth` or `Crypto Dev` token is selected. If `Eth` is selected it means that the user
@@ -100,9 +100,9 @@ export default function Home() {
 
   /**** SWAP FUNCTIONS ****/
 
-  /*
-  swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeRecievedAfterSwap` amount of Eth/Crypto Dev tokens.
-*/
+  /**
+   * swapTokens: Swaps  `swapAmountWei` of Eth/Crypto Dev tokens with `tokenToBeReceivedAfterSwap` amount of Eth/Crypto Dev tokens.
+   */
   const _swapTokens = async () => {
     try {
       // Convert the amount entered by the user to a BigNumber using the `parseEther` library from `ethers.js`
@@ -116,7 +116,7 @@ export default function Home() {
         await swapTokens(
           signer,
           swapAmountWei,
-          tokenToBeRecievedAfterSwap,
+          tokenToBeReceivedAfterSwap,
           ethSelected
         );
         setLoading(false);
@@ -131,10 +131,10 @@ export default function Home() {
     }
   };
 
-  /*
-    _getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be recieved 
-    when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
- */
+  /**
+   * _getAmountOfTokensReceivedFromSwap:  Returns the number of Eth/Crypto Dev tokens that can be received 
+   * when the user swaps `_swapAmountWEI` amount of Eth/Crypto Dev tokens.
+   */
   const _getAmountOfTokensReceivedFromSwap = async (_swapAmount) => {
     try {
       // Convert the amount entered by the user to a BigNumber using the `parseEther` library from `ethers.js`
@@ -153,9 +153,9 @@ export default function Home() {
           _ethBalance,
           reservedCD
         );
-        setTokenToBeRecievedAfterSwap(amountOfTokens);
+        settokenToBeReceivedAfterSwap(amountOfTokens);
       } else {
-        setTokenToBeRecievedAfterSwap(zero);
+        settokenToBeReceivedAfterSwap(zero);
       }
     } catch (err) {
       console.error(err);
@@ -169,8 +169,8 @@ export default function Home() {
   /**
    * _addLiquidity helps add liquidity to the exchange,
    * If the user is adding initial liquidity, user decides the ether and CD tokens he wants to add
-   * to the exchange. If we he adding the liquidity after the initial liquidity has already been added
-   * then we calculate the crypto dev tokens he can add, given the eth he wants to add by keeping the ratios
+   * to the exchange. If he is adding the liquidity after the initial liquidity has already been added
+   * then we calculate the crypto dev tokens he can add, given the Eth he wants to add by keeping the ratios
    * constant
    */
   const _addLiquidity = async () => {
@@ -256,9 +256,9 @@ export default function Home() {
 
   /**** END ****/
 
-  /*
-      connectWallet: Connects the MetaMask wallet
-  */
+  /**
+   * connectWallet: Connects the MetaMask wallet
+   */
   const connectWallet = async () => {
     try {
       // Get the provider from web3Modal, which in our case is MetaMask
@@ -272,7 +272,7 @@ export default function Home() {
 
   /**
    * Returns a Provider or Signer object representing the Ethereum RPC with or
-   * without the signing capabilities of metamask attached
+   * without the signing capabilities of Metamask attached
    *
    * A `Provider` is needed to interact with the blockchain - reading
    * transactions, reading balances, reading state, etc.
@@ -357,7 +357,7 @@ export default function Home() {
           </div>
           <div>
             {/* If reserved CD is zero, render the state for liquidity zero where we ask the user
-            who much initial liquidity he wants to add else just render the state where liquidity is not zero and
+            how much initial liquidity he wants to add else just render the state where liquidity is not zero and
             we calculate based on the `Eth` amount specified by the user how much `CD` tokens can be added */}
             {utils.parseEther(reservedCD.toString()).eq(zero) ? (
               <div>
@@ -415,7 +415,7 @@ export default function Home() {
                 placeholder="Amount of LP Tokens"
                 onChange={async (e) => {
                   setRemoveLPTokens(e.target.value || "0");
-                  // Calculate the amount of Ether and CD tokens that the user would recieve
+                  // Calculate the amount of Ether and CD tokens that the user would receive
                   // After he removes `e.target.value` amount of `LP` tokens
                   await _getTokensAfterRemove(e.target.value || "0");
                 }}
@@ -441,7 +441,7 @@ export default function Home() {
             placeholder="Amount"
             onChange={async (e) => {
               setSwapAmount(e.target.value || "");
-              // Calculate the amount of tokens user would recieve after the swap
+              // Calculate the amount of tokens user would receive after the swap
               await _getAmountOfTokensReceivedFromSwap(e.target.value || "0");
             }}
             className={styles.input}
@@ -466,10 +466,10 @@ export default function Home() {
             {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
             {ethSelected
               ? `You will get ${utils.formatEther(
-                  tokenToBeRecievedAfterSwap
+                  tokenToBeReceivedAfterSwap
                 )} Crypto Dev Tokens`
               : `You will get ${utils.formatEther(
-                  tokenToBeRecievedAfterSwap
+                  tokenToBeReceivedAfterSwap
                 )} Eth`}
           </div>
           <button className={styles.button1} onClick={_swapTokens}>
