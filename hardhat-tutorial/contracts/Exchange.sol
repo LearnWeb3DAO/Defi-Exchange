@@ -99,7 +99,7 @@ contract Exchange is ERC20 {
         _burn(msg.sender, _amount);
         // Transfer `ethAmount` of Eth from the contract to the user
         payable(msg.sender).transfer(ethAmount);
-        // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the user's wallet to the contract 
+        // Transfer `cryptoDevTokenAmount` of `Crypto Dev` tokens from the contract to the user's wallet
         ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
         return (ethAmount, cryptoDevTokenAmount);
     }
