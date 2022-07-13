@@ -576,7 +576,7 @@ contract Exchange is ERC20 {
 - Now open the `hardhat.config.js` file, we would add the `rinkeby` network here so that we can deploy our contract to rinkeby. Replace all the lines in the `hardhat.config.js` file with the given below lines
 
   ```js
-  require("@nomiclabs/hardhat-waffle");
+  require("@nomicfoundation/hardhat-toolbox");
   require("dotenv").config({ path: ".env" });
 
   const ALCHEMY_API_KEY_URL = process.env.ALCHEMY_API_KEY_URL;
