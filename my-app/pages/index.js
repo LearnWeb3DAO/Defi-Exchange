@@ -91,7 +91,6 @@ export default function Home() {
       setCDBalance(_cdBalance);
       setLPBalance(_lpBalance);
       setReservedCD(_reservedCD);
-      setReservedCD(_reservedCD);
       setEtherBalanceContract(_ethBalanceContract);
     } catch (err) {
       console.error(err);
