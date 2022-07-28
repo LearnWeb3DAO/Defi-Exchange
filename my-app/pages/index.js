@@ -383,53 +383,56 @@ export default function Home() {
               </div>
             ) : (
               <div>
-                <input
-                  type="number"
-                  placeholder="Amount of Ether"
-                  onChange={async (e) => {
-                    setAddEther(e.target.value || "0");
-                    // calculate the number of CD tokens that
-                    // can be added given  `e.target.value` amount of Eth
-                    const _addCDTokens = await calculateCD(
-                      e.target.value || "0",
-                      etherBalanceContract,
-                      reservedCD
-                    );
-                    setAddCDTokens(_addCDTokens);
-                  }}
-                  className={styles.input}
-                />
-                <div className={styles.inputDiv}>
-                  {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-                  {`You will need ${utils.formatEther(addCDTokens)} Crypto Dev
-                  Tokens`}
+                <div>
+                  <input
+                    type="number"
+                    placeholder="Amount of Ether"
+                    onChange={async (e) => {
+                      setAddEther(e.target.value || "0");
+                      // calculate the number of CD tokens that
+                      // can be added given  `e.target.value` amount of Eth
+                      const _addCDTokens = await calculateCD(
+                        e.target.value || "0",
+                        etherBalanceContract,
+                        reservedCD
+                      );
+                      setAddCDTokens(_addCDTokens);
+                    }}
+                    className={styles.input}
+                  />
+                  <div className={styles.inputDiv}>
+                    {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                    {`You will need ${utils.formatEther(addCDTokens)} Crypto Dev
+                    Tokens`}
+                  </div>
+                  <button className={styles.button1} onClick={_addLiquidity}>
+                    Add
+                  </button>
                 </div>
-                <button className={styles.button1} onClick={_addLiquidity}>
-                  Add
-                </button>
+              
+                <div>
+                  <input
+                    type="number"
+                    placeholder="Amount of LP Tokens"
+                    onChange={async (e) => {
+                      setRemoveLPTokens(e.target.value || "0");
+                      // Calculate the amount of Ether and CD tokens that the user would receive
+                      // After he removes `e.target.value` amount of `LP` tokens
+                      await _getTokensAfterRemove(e.target.value || "0");
+                    }}
+                    className={styles.input}
+                  />
+                  <div className={styles.inputDiv}>
+                    {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
+                    {`You will get ${utils.formatEther(removeCD)} Crypto
+                  Dev Tokens and ${utils.formatEther(removeEther)} Eth`}
+                  </div>
+                  <button className={styles.button1} onClick={_removeLiquidity}>
+                    Remove
+                  </button>
+                </div>
               </div>
             )}
-            <div>
-              <input
-                type="number"
-                placeholder="Amount of LP Tokens"
-                onChange={async (e) => {
-                  setRemoveLPTokens(e.target.value || "0");
-                  // Calculate the amount of Ether and CD tokens that the user would receive
-                  // After he removes `e.target.value` amount of `LP` tokens
-                  await _getTokensAfterRemove(e.target.value || "0");
-                }}
-                className={styles.input}
-              />
-              <div className={styles.inputDiv}>
-                {/* Convert the BigNumber to string using the formatEther function from ethers.js */}
-                {`You will get ${utils.formatEther(removeCD)} Crypto
-              Dev Tokens and ${utils.formatEther(removeEther)} Eth`}
-              </div>
-              <button className={styles.button1} onClick={_removeLiquidity}>
-                Remove
-              </button>
-            </div>
           </div>
         </div>
       );
