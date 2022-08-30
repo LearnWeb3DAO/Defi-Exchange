@@ -133,7 +133,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - To ensure this, we maintain a ratio which has to remain constant
     - Ratio is `(cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract)`
     - This ratio decides how much `Crypto Dev` tokens user can supply given a certain amount of Eth
-    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquiidty he has supplied to the contract
+    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquidity he has supplied to the contract
     - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
     - In the initial liquidity case, when there is no liquidity: The amount of `LP` tokens that would be minted to the user is equal to the `Eth` balance of the contract (because balance is equal to the `Eth` sent by the user in the `addLiquidity` call)
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted is based on a ratio.
@@ -932,7 +932,7 @@ contract Exchange is ERC20 {
       // We do that using the `parseEther` function from `ethers.js`
       const _addEtherAmountWei = utils.parseEther(_addEther);
 
-      // Ratio needs to be maintained when we add liquidty.
+      // Ratio needs to be maintained when we add liquidity.
       // We need to let the user know for a specific amount of ether how many `CD` tokens
       // He can add so that the price impact is not large
       // The ratio we follow is (amount of Crypto Dev tokens to be added) / (Crypto Dev tokens balance) = (Eth that would be added) / (Eth reserve in the contract)
