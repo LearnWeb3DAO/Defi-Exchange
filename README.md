@@ -10,10 +10,10 @@ Now its time for you to launch a DeFi Exchange for your `Crypto Dev` tokens
 
 ## Requirements
 
-- Build an exhange with only one asset pair (Eth / Crypto Dev)
+- Build an exchange with only one asset pair (Eth / Crypto Dev)
 - Your Decentralized Exchange should take a fees of `1%` on swaps
 - When user adds liquidity, they should be given `Crypto Dev LP` tokens (Liquidity Provider tokens)
-- CD LP tokens should be given propotional to the `Ether` user is willing to add to the liquidity
+- CD LP tokens should be given proportional to the `Ether` user is willing to add to the liquidity
 
 Lets start building 🚀
 
@@ -66,7 +66,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
   npm install @openzeppelin/contracts
   ```
 
-- Create a new file inside the `contracts` directory called `Exchange.sol`. In this tutorial we would cover each part of the contract seperately
+- Create a new file inside the `contracts` directory called `Exchange.sol`. In this tutorial we would cover each part of the contract separately
 
   - First lets start by importing `ERC20.sol`
 
@@ -133,8 +133,8 @@ Hardhat is an Ethereum development environment and framework designed for full s
     - To ensure this, we maintain a ratio which has to remain constant
     - Ratio is `(cryptoDevTokenAmount user can add/cryptoDevTokenReserve in the contract) = (Eth Sent by the user/Eth Reserve in the contract)`
     - This ratio decides how much `Crypto Dev` tokens user can supply given a certain amount of Eth
-    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquiidty he has supplied to the contract
-    - The amount of `LP` tokens that get minted to the user are propotional to the `Eth` supplied by the user
+    - When user adds liquidity, we need to provide him with some `LP` tokens because we need to keep track of the amount of liquidity he has supplied to the contract
+    - The amount of `LP` tokens that get minted to the user are proportional to the `Eth` supplied by the user
     - In the initial liquidity case, when there is no liquidity: The amount of `LP` tokens that would be minted to the user is equal to the `Eth` balance of the contract (because balance is equal to the `Eth` sent by the user in the `addLiquidity` call)
     - When there is already liquidity in the contract, the amount of `LP` tokens that get minted is based on a ratio.
     - The ratio is `(LP tokens to be sent to the user (liquidity) / totalSupply of LP tokens in contract) = (Eth sent by the user) / (Eth reserve in the contract)`
@@ -182,7 +182,7 @@ Hardhat is an Ethereum development environment and framework designed for full s
             // transfer only (cryptoDevTokenAmount user can add) amount of `Crypto Dev tokens` from users account
             // to the contract
             cryptoDevToken.transferFrom(msg.sender, address(this), cryptoDevTokenAmount);
-            // The amount of LP tokens that would be sent to the user should be propotional to the liquidity of
+            // The amount of LP tokens that would be sent to the user should be proportional to the liquidity of
             // ether added by the user
             // Ratio here to be maintained is ->
             // (LP tokens to be sent to the user (liquidity)/ totalSupply of LP tokens in contract) = (Eth sent by the user)/(Eth reserve in the contract)
